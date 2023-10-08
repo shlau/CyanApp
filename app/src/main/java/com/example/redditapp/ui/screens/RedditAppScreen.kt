@@ -54,9 +54,8 @@ fun RedditAppScreen(
                 token = "bearer $token"
 
             }
-            Log.d("RedditApi", "token received ${token}")
+            Log.d("RedditApi", "token received $token")
             viewModel.updateToken(token)
-            viewModel.getMySubreddits()
             Homepage()
         }
     }

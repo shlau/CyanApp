@@ -53,7 +53,7 @@ fun RedditAuthScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
         Button(
-            onClick = { viewModel.openRedditLogin(authUiState.apiKey, uriHandler) },
+            onClick = { viewModel.openRedditLogin(uriHandler) },
             enabled = authUiState.apiKey !== "",
             modifier = Modifier
                 .fillMaxWidth()

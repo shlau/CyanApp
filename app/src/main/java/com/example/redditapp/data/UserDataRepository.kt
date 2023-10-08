@@ -19,4 +19,8 @@ class UserDataRepository @Inject constructor(private val userDataStore: DataStor
             currentSettings[USER_TOKEN] = token
         }
     }
+
+    fun getToken() =
+        userDataStore.data.map { it[USER_TOKEN] }
+
 }

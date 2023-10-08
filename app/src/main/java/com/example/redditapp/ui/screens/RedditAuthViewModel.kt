@@ -19,7 +19,7 @@ class RedditAuthViewModel : ViewModel() {
         _uiState.update { currentState -> currentState.copy(apiKey = key) }
     }
 
-    fun openRedditLogin(apiKey: String, uriHandler: UriHandler) {
+    fun openRedditLogin(uriHandler: UriHandler) {
         val clientId = _uiState.value.apiKey
         val scope =
             "identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread"
