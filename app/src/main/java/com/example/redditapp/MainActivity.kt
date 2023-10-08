@@ -1,6 +1,5 @@
 package com.example.redditapp
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,9 +9,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.datastore.preferences.preferencesDataStore
 import com.example.redditapp.ui.screens.RedditAppScreen
-import com.example.redditapp.ui.screens.RedditAuthScreen
+import com.example.redditapp.ui.screens.auth.RedditAuthScreen
 import com.example.redditapp.ui.theme.RedditAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 

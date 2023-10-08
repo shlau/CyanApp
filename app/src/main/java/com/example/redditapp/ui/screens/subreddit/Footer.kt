@@ -1,4 +1,4 @@
-package com.example.redditapp.ui.screens
+package com.example.redditapp.ui.screens.subreddit
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

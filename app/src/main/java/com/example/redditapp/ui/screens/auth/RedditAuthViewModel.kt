@@ -1,4 +1,4 @@
-package com.example.redditapp.ui.screens
+package com.example.redditapp.ui.screens.auth
 
 import androidx.compose.ui.platform.UriHandler
 import androidx.lifecycle.ViewModel

@@ -13,6 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.example.redditapp.ui.screens.auth.RedditAuthScreen
+import com.example.redditapp.ui.screens.subreddit.SubredditPage
 
 @Composable
 fun RedditAppScreen(
@@ -24,14 +26,14 @@ fun RedditAppScreen(
 
     NavHost(navController = navController, startDestination = "auth") {
         composable(route = "home") {
-            Homepage()
+            SubredditPage()
         }
         composable(route = "auth") {
             Log.d("RedditApi", userToken.value)
             if (userToken.value === "") {
                 RedditAuthScreen()
             } else {
-                Homepage()
+                SubredditPage()
             }
         }
         composable(
@@ -56,7 +58,7 @@ fun RedditAppScreen(
             }
             Log.d("RedditApi", "token received $token")
             viewModel.updateToken(token)
-            Homepage()
+            SubredditPage()
         }
     }
 }
