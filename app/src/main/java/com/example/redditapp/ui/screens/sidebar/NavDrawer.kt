@@ -22,11 +22,19 @@ fun NavDrawer(onSubredditClick: (String?) -> Unit, modifier: Modifier = Modifier
     val viewModel: NavDrawerViewModel = hiltViewModel()
     val navUiState = viewModel.uiState.collectAsState()
     Text(stringResource(R.string.my_subreddits), modifier = Modifier.padding(16.dp))
+    Divider()
     NavigationDrawerItem(
         label = { Text(text = stringResource(R.string.frontpage)) },
         selected = false,
         onClick = {
             onSubredditClick(null)
+        }
+    )
+    NavigationDrawerItem(
+        label = { Text(text = stringResource(R.string.all)) },
+        selected = false,
+        onClick = {
+            onSubredditClick("/r/all")
         }
     )
     Divider()

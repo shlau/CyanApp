@@ -27,7 +27,8 @@ class NavDrawerViewModel @Inject constructor(
             try {
                 val subscribedSubredditsData: SubredditsDataModel =
                     redditAuthRepository.getSubscribedSubreddits()
-                val subscribed = subscribedSubredditsData.children.map { it.data }
+                val subscribed =
+                    subscribedSubredditsData.children.map { it.data }.sortedBy { it.displayName.lowercase() }
                 _uiState.update { currentState -> currentState.copy(subscribedSubreddits = subscribed) }
                 Log.d("RedditApi", "multi data $subscribed")
             } catch (e: Exception) {

@@ -3,4 +3,5 @@
     <string name="submit">Submit</string>
     <string name="my_subreddits">My Subreddits</string>
     <string name="frontpage">Frontpage</string>
+    <string name="all">All</string>
 </resources>
