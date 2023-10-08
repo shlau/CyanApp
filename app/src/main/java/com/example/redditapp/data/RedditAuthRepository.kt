@@ -9,7 +9,8 @@ import javax.inject.Inject
 
 interface RedditAuthRepository {
     suspend fun getSubscribedSubreddits(): SubredditsDataModel
-    suspend fun getSubredditPage(after: String): List<SubredditListingModel>
+    suspend fun getHomePage(after: String): List<SubredditListingModel>
+    suspend fun getSubredditPage(subreddit: String, after: String): List<SubredditListingModel>
 }
 
 class RedditAuthRepositoryImp @Inject constructor() :
@@ -23,8 +24,13 @@ class RedditAuthRepositoryImp @Inject constructor() :
         return response.data
     }
 
-    override suspend fun getSubredditPage(after: String): List<SubredditListingModel> {
-        var response: SubredditPageResponse = redditApiService.getSubredditPage("")
+    override suspend fun getHomePage(after: String): List<SubredditListingModel> {
+        var response: SubredditPageResponse = redditApiService.getHomePage(after)
+        return response.data.children
+    }
+
+    override suspend fun getSubredditPage(subreddit: String,after: String): List<SubredditListingModel> {
+        var response: SubredditPageResponse = redditApiService.getSubredditPage(subreddit,after)
         return response.data.children
     }
 }

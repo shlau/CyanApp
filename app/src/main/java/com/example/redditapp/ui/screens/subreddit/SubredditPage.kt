@@ -1,5 +1,6 @@
 package com.example.redditapp.ui.screens.subreddit
 
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,18 +37,19 @@ fun SubredditPage(modifier: Modifier = Modifier) {
     val subredditPageUiState = viewModel.uiState.collectAsState()
     ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
         ModalDrawerSheet {
-            NavDrawer()
+            NavDrawer(onSubredditClick = { url: String? ->
+                viewModel.getPageListings(url)
+                scope.launch {
+                    drawerState.apply { close() }
+                }
+            })
         }
     }) {
         Scaffold(bottomBar = {
             Footer({
                 scope.launch {
                     drawerState.apply {
-                        if (isClosed) {
-                            open()
-                        } else {
-                            close()
-                        }
+                        open()
                     }
                 }
             })

@@ -1,5 +1,6 @@
 package com.example.redditapp.ui.screens.sidebar
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,18 +18,26 @@ import com.example.redditapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavDrawer(modifier: Modifier = Modifier) {
+fun NavDrawer(onSubredditClick: (String?) -> Unit, modifier: Modifier = Modifier) {
     val viewModel: NavDrawerViewModel = hiltViewModel()
     val navUiState = viewModel.uiState.collectAsState()
     Text(stringResource(R.string.my_subreddits), modifier = Modifier.padding(16.dp))
+    NavigationDrawerItem(
+        label = { Text(text = stringResource(R.string.frontpage)) },
+        selected = false,
+        onClick = {
+            onSubredditClick(null)
+        }
+    )
     Divider()
-
     LazyColumn {
         items(navUiState.value.subscribedSubreddits) {
             NavigationDrawerItem(
                 label = { Text(text = it.displayName) },
                 selected = false,
-                onClick = {}
+                onClick = {
+                    onSubredditClick(it.url)
+                }
             )
         }
 

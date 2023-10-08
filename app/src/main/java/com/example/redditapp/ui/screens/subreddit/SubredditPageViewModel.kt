@@ -20,11 +20,14 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
     ViewModel() {
     private val _uiState = MutableStateFlow(SubredditPageUiState())
     val uiState = _uiState.asStateFlow()
-    private fun getPageListings(after: String = "") {
+    fun getPageListings(url: String?, after: String = "") {
         viewModelScope.launch {
             try {
                 val subredditListings: List<SubredditListingModel> =
-                    redditAuthRepository.getSubredditPage(after)
+                    if (url == null) redditAuthRepository.getHomePage(after) else redditAuthRepository.getSubredditPage(
+                        url.split("/")[2],
+                        after
+                    )
                 val listingsData = subredditListings.map {
                     var thumbnail = it.data.thumbnail
                     if (thumbnail != null) {
@@ -32,7 +35,6 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
                     }
                     it.data
                 }
-                Log.d("Subreddit", listingsData.toString())
                 _uiState.update { currentState -> currentState.copy(listings = listingsData) }
             } catch (e: Exception) {
                 Log.d("RedditApi", e.toString())
@@ -41,6 +43,6 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
     }
 
     init {
-        getPageListings()
+        getPageListings(null)
     }
 }

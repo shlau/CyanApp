@@ -2,4 +2,5 @@
     <string name="app_name">RedditApp</string>
     <string name="submit">Submit</string>
     <string name="my_subreddits">My Subreddits</string>
+    <string name="frontpage">Frontpage</string>
 </resources>
