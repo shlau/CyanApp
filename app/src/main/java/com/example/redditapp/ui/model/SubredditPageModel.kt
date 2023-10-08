@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class SubredditPageResponse(val data: SubredditPageDataModel)
 
 @Serializable
-data class SubredditPageDataModel(val children: List<SubredditListingModel>)
+data class SubredditPageDataModel(val children: List<SubredditListingModel>, val after: String)
 
 @Serializable
 data class SubredditListingModel(val data: SubredditListingDataModel)

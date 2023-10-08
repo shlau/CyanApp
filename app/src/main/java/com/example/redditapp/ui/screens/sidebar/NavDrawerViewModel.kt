@@ -3,7 +3,9 @@ package com.example.redditapp.ui.screens.sidebar
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redditapp.data.RedditAuthRepositoryImp
+import com.example.redditapp.data.UserDataRepository
 import com.example.redditapp.ui.model.SubredditDataModel
 import com.example.redditapp.ui.model.SubredditsDataModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +21,7 @@ data class NavDrawerUiState(val subscribedSubreddits: List<SubredditDataModel> =
 @HiltViewModel
 class NavDrawerViewModel @Inject constructor(
     private val redditAuthRepository: RedditAuthRepositoryImp,
+    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(NavDrawerUiState())
     val uiState: StateFlow<NavDrawerUiState> = _uiState.asStateFlow()
@@ -28,12 +31,19 @@ class NavDrawerViewModel @Inject constructor(
                 val subscribedSubredditsData: SubredditsDataModel =
                     redditAuthRepository.getSubscribedSubreddits()
                 val subscribed =
-                    subscribedSubredditsData.children.map { it.data }.sortedBy { it.displayName.lowercase() }
+                    subscribedSubredditsData.children.map { it.data }
+                        .sortedBy { it.displayName.lowercase() }
                 _uiState.update { currentState -> currentState.copy(subscribedSubreddits = subscribed) }
                 Log.d("RedditApi", "multi data $subscribed")
             } catch (e: Exception) {
                 Log.d("RedditApi", e.toString())
             }
+        }
+    }
+
+    fun logOut() {
+        viewModelScope.launch {
+            userDataRepository.updateUserToken("")
         }
     }
 
