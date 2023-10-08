@@ -1,5 +1,6 @@
 package com.example.redditapp.ui.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,4 +13,7 @@ data class SubredditsData(val children: List<Subreddit>)
 data class Subreddit(val data: SubredditData)
 
 @Serializable
-data class SubredditData(val title: String, val url: String)
+data class SubredditData(
+    @SerialName(value = "display_name") val displayName: String,
+    val url: String
+)

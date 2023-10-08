@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.ui.model.SubredditData
 import com.example.redditapp.ui.model.SubredditsData
-import com.example.redditapp.ui.screens.RedditAppUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +22,7 @@ class NavDrawerViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(NavDrawerUiState())
     val uiState: StateFlow<NavDrawerUiState> = _uiState.asStateFlow()
-    fun getMySubreddits() {
+    private fun getMySubreddits() {
         viewModelScope.launch {
             try {
                 val subscribedSubredditsData: SubredditsData =

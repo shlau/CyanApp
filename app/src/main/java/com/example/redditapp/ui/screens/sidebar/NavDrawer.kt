@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redditapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,16 +26,11 @@ fun NavDrawer(modifier: Modifier = Modifier) {
     LazyColumn {
         items(navUiState.value.subscribedSubreddits) {
             NavigationDrawerItem(
-                label = { Text(text = it.title) },
+                label = { Text(text = it.displayName) },
                 selected = false,
                 onClick = {}
             )
         }
 
     }
-    NavigationDrawerItem(
-        label = { Text(text = "Drawer Item") },
-        selected = false,
-        onClick = { viewModel.getMySubreddits() }
-    )
 }
