@@ -25,7 +25,14 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
             try {
                 val subredditListings: List<SubredditListingModel> =
                     redditAuthRepository.getSubredditPage(after)
-                val listingsData = subredditListings.map { it.data }
+                val listingsData = subredditListings.map {
+                    var thumbnail = it.data.thumbnail
+                    if (thumbnail != null) {
+                        it.data.thumbnail = thumbnail.replace("&amp;", "&")
+                    }
+                    it.data
+                }
+                Log.d("Subreddit", listingsData.toString())
                 _uiState.update { currentState -> currentState.copy(listings = listingsData) }
             } catch (e: Exception) {
                 Log.d("RedditApi", e.toString())

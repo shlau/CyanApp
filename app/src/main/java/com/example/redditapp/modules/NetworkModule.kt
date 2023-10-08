@@ -22,6 +22,7 @@ import retrofit2.Retrofit
 
 private val json = Json {
     ignoreUnknownKeys = true
+    explicitNulls = false
 }
 
 @InstallIn(SingletonComponent::class)
