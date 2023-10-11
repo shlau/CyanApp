@@ -25,7 +25,7 @@ class RedditAuthViewModel : ViewModel() {
             "identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread"
         val redirectUri = "cyan://reddit"
         val url =
-            "https://www.reddit.com/api/v1/authorize?client_id=$clientId&response_type=token&state=auth_success&redirect_uri=$redirectUri&scope=$scope"
+            "https://www.reddit.com/api/v1/authorize?client_id=$clientId&response_type=code&state=$clientId&redirect_uri=$redirectUri&duration=permanent&scope=$scope"
         uriHandler.openUri(url)
     }
 }

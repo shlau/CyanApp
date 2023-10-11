@@ -39,7 +39,7 @@ fun RedditAuthScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Enter your reddit api key",
+            text = stringResource(R.string.enter_your_reddit_api_key),
             textAlign = TextAlign.Justify,
             modifier = Modifier.padding(bottom = 10.dp)
         )

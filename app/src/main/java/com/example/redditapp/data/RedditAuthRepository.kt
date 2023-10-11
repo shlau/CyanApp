@@ -1,7 +1,7 @@
 package com.example.redditapp.data
 
 import com.example.redditapp.network.RedditApiService
-import com.example.redditapp.ui.model.SubredditListingModel
+import com.example.redditapp.ui.model.AccessResponse
 import com.example.redditapp.ui.model.SubredditPageDataModel
 import com.example.redditapp.ui.model.SubredditPageResponse
 import com.example.redditapp.ui.model.SubredditsDataModel
@@ -12,6 +12,8 @@ interface RedditAuthRepository {
     suspend fun getSubscribedSubreddits(): SubredditsDataModel
     suspend fun getHomePage(after: String): SubredditPageDataModel
     suspend fun getSubredditPage(subreddit: String, after: String): SubredditPageDataModel
+    suspend fun getAccessToken(code: String, authorization: String): AccessResponse
+    suspend fun refreshAccessToken(authorization: String, refreshToken: String): AccessResponse
 }
 
 class RedditAuthRepositoryImp @Inject constructor() :
@@ -36,5 +38,19 @@ class RedditAuthRepositoryImp @Inject constructor() :
     ): SubredditPageDataModel {
         var response: SubredditPageResponse = redditApiService.getSubredditPage(subreddit, after)
         return response.data
+    }
+
+    override suspend fun getAccessToken(code: String, authorization: String): AccessResponse {
+        return redditApiService.getAccessToken(code = code, authorization = authorization)
+    }
+
+    override suspend fun refreshAccessToken(
+        authorization: String,
+        refreshToken: String
+    ): AccessResponse {
+        return redditApiService.refreshAccessToken(
+            refreshToken = refreshToken,
+            authorization = authorization
+        )
     }
 }

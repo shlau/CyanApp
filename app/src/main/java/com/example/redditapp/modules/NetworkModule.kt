@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 private val json = Json {
     ignoreUnknownKeys = true
@@ -28,7 +29,7 @@ private val json = Json {
 @InstallIn(SingletonComponent::class)
 @Module
 object NetworkModule {
-    private const val BASE_URL = "https://oauth.reddit.com/"
+    private const val OAUTH_BASE_URL = "https://oauth.reddit.com/"
 
     private class LoggingInterceptor(private val userDataRepository: UserDataRepository) :
         Interceptor {
@@ -37,24 +38,24 @@ object NetworkModule {
                 userDataRepository.getToken().first()
             }
             val newRequest =
-                chain.request().newBuilder().addHeader("Authorization", token ?: "").build()
+                chain.request().newBuilder().addHeader("Authorization", "$token" ?: "").build()
             return chain.proceed(newRequest)
         }
     }
 
-    @Provides
-    fun providesRetrofit(userDataRepository: UserDataRepository): Retrofit {
+    private fun oAuthRetrofit(userDataRepository: UserDataRepository): Retrofit {
         val httpClient =
             OkHttpClient.Builder().addInterceptor(LoggingInterceptor(userDataRepository)).build()
         return Retrofit.Builder()
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
+//                ScalarsConverterFactory.create()
             ).baseUrl(
-                BASE_URL
+                OAUTH_BASE_URL
             ).client(httpClient).build()
     }
 
     @Provides
     fun providesRedditApiService(userDataRepository: UserDataRepository): RedditApiService =
-        providesRetrofit(userDataRepository).create(RedditApiService::class.java)
+        oAuthRetrofit(userDataRepository).create(RedditApiService::class.java)
 }

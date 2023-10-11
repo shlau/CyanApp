@@ -5,4 +5,8 @@
     <string name="frontpage">Frontpage</string>
     <string name="all">All</string>
     <string name="logout">Logout</string>
+    <string name="enter_your_reddit_api_key">Enter your reddit api key</string>
+    <string name="auth">auth</string>
+    <string name="login">login</string>
+    <string name="home">home</string>
 </resources>
