@@ -3,51 +3,55 @@ package com.example.redditapp.data
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class UserDataRepository @Inject constructor(private val userDataStore: DataStore<Preferences>) {
-    val USER_TOKEN = stringPreferencesKey("user_token")
-    val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
-    val TOKEN_EXPIRATION = stringPreferencesKey("token_expiration")
-    val CLIENT_ID = stringPreferencesKey("client_id")
+    object PreferenceKeys {
+        val CLIENT_ID = stringPreferencesKey("client_id")
+        val USER_TOKEN = stringPreferencesKey("user_token")
+        val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
+        val TOKEN_EXPIRATION = longPreferencesKey("token_expiration")
+    }
+
     val userTokenFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[USER_TOKEN] ?: ""
+        currentPreferences[PreferenceKeys.USER_TOKEN] ?: ""
     }
     val refreshTokenFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[REFRESH_TOKEN] ?: ""
+        currentPreferences[PreferenceKeys.REFRESH_TOKEN] ?: ""
     }
-    val tokenExpirationFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[TOKEN_EXPIRATION] ?: ""
+    val tokenExpirationFlow: Flow<Long> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.TOKEN_EXPIRATION] ?: -1
     }
 
     val clientIdFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[CLIENT_ID] ?: ""
+        currentPreferences[PreferenceKeys.CLIENT_ID] ?: ""
     }
 
     suspend fun updateUserToken(token: String) {
         userDataStore.edit { currentSettings ->
-            currentSettings[USER_TOKEN] = token
+            currentSettings[PreferenceKeys.USER_TOKEN] = token
         }
     }
 
     suspend fun updateRefreshToken(token: String) {
         userDataStore.edit { currentSettings ->
-            currentSettings[REFRESH_TOKEN] = token
+            currentSettings[PreferenceKeys.REFRESH_TOKEN] = token
         }
     }
 
-    suspend fun updateTokenExpiration(expiration: String) {
+    suspend fun updateTokenExpiration(expiration: Long) {
         userDataStore.edit { currentSettings ->
-            currentSettings[TOKEN_EXPIRATION] = expiration
+            currentSettings[PreferenceKeys.TOKEN_EXPIRATION] = expiration
         }
     }
 
     suspend fun updateClientId(clientId: String) {
         userDataStore.edit { currentSettings ->
-            currentSettings[CLIENT_ID] = clientId
+            currentSettings[PreferenceKeys.CLIENT_ID] = clientId
         }
     }
 
@@ -56,13 +60,14 @@ class UserDataRepository @Inject constructor(private val userDataStore: DataStor
     }
 
     fun getToken() =
-        userDataStore.data.map { it[USER_TOKEN] }
+        userDataStore.data.map { it[PreferenceKeys.USER_TOKEN] }
 
     fun getRefreshToken() =
-        userDataStore.data.map { it[REFRESH_TOKEN] }
+        userDataStore.data.map { it[PreferenceKeys.REFRESH_TOKEN] }
 
     fun getTokenExpiration() =
-        userDataStore.data.map { it[TOKEN_EXPIRATION] }
+        userDataStore.data.map { it[PreferenceKeys.TOKEN_EXPIRATION] }
+
     fun getClientId() =
-        userDataStore.data.map { it[CLIENT_ID] }
+        userDataStore.data.map { it[PreferenceKeys.CLIENT_ID] }
 }

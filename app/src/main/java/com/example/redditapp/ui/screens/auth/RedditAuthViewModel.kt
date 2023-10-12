@@ -7,10 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-data class RedditAuthUiState(
-    val apiKey: String = "",
-)
-
 class RedditAuthViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RedditAuthUiState())
     val uiState: StateFlow<RedditAuthUiState> = _uiState.asStateFlow()

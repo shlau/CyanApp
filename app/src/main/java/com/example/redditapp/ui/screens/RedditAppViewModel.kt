@@ -4,6 +4,7 @@ import android.net.Credentials
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.data.UserDataRepository
 import com.example.redditapp.ui.model.AccessResponse
@@ -17,21 +18,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class RedditAppUiState(
-    var code: String = ""
-)
-
+private const val BEARER = "bearer"
 @HiltViewModel
 class RedditAppViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val authRepository: RedditAuthRepositoryImp
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(RedditAppUiState())
-    private val refreshTokenFlow: Flow<String> = userDataRepository.refreshTokenFlow
-    val uiState: StateFlow<RedditAppUiState> = _uiState.asStateFlow()
     val userTokenFlow: Flow<String> = userDataRepository.userTokenFlow
-    val tokenExpirationFlow: Flow<String> = userDataRepository.tokenExpirationFlow
-    val clientIdFlow: Flow<String> = userDataRepository.clientIdFlow
+    val tokenExpirationFlow: Flow<Long> = userDataRepository.tokenExpirationFlow
+
+    private val _uiState = MutableStateFlow(RedditAppUiState())
+    val uiState: StateFlow<RedditAppUiState> = _uiState.asStateFlow()
 
     fun updateCode(code: String) {
         _uiState.value.code = code
@@ -58,13 +55,12 @@ class RedditAppViewModel @Inject constructor(
                 val credentials: String = okhttp3.Credentials.basic(clientId, clientSecret)
                 val res =
                     authRepository.getAccessToken(code = code, authorization = credentials)
-                userDataRepository.updateUserToken("bearer ${res.accessToken}")
+                userDataRepository.updateUserToken("$BEARER ${res.accessToken}")
                 userDataRepository.updateRefreshToken(res.refreshToken)
-                userDataRepository.updateTokenExpiration(res.expiresIn.toString())
+                userDataRepository.updateTokenExpiration(res.expiresIn)
                 userDataRepository.updateClientId(clientId)
-                Log.d("RedditApi", "auth res: ${res.toString()}")
             } catch (e: Exception) {
-                Log.d("RedditApi", e.toString())
+                Log.d(REDDIT_API, e.toString())
             }
         }
     }
@@ -72,16 +68,18 @@ class RedditAppViewModel @Inject constructor(
     fun refreshAccessToken() {
         viewModelScope.launch {
             try {
-                val clientId = clientIdFlow.first()
+                val clientId = userDataRepository.getClientId().first() ?: ""
                 val clientSecret = ""
                 val credentials: String = okhttp3.Credentials.basic(clientId, clientSecret)
                 val res =
-                    authRepository.refreshAccessToken(refreshToken = refreshTokenFlow.first(), authorization = credentials)
-                userDataRepository.updateUserToken("bearer ${res.accessToken}")
+                    authRepository.refreshAccessToken(
+                        refreshToken = userDataRepository.getRefreshToken().first() ?: "",
+                        authorization = credentials
+                    )
+                userDataRepository.updateUserToken("$BEARER ${res.accessToken}")
                 userDataRepository.updateRefreshToken(res.refreshToken)
-            }
-            catch (e: Exception) {
-                Log.d("RedditApi", e.toString())
+            } catch (e: Exception) {
+                Log.d(REDDIT_API, e.toString())
             }
         }
     }

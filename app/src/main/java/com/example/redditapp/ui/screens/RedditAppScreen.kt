@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.R
 import com.example.redditapp.ui.screens.auth.RedditAuthScreen
 import com.example.redditapp.ui.screens.subreddit.SubredditPage
@@ -34,7 +35,7 @@ fun RedditAppScreen(
     val viewModel: RedditAppViewModel = viewModel()
     val userToken = viewModel.userTokenFlow.collectAsStateWithLifecycle(initialValue = "")
     val tokenExpirationFlow =
-        viewModel.tokenExpirationFlow.collectAsStateWithLifecycle(initialValue = "")
+        viewModel.tokenExpirationFlow.collectAsStateWithLifecycle(initialValue = -1)
     val redditAppUiState = viewModel.uiState.collectAsState()
 
     NavHost(navController = navController, startDestination = NavRoutes.Auth.name) {
@@ -42,14 +43,13 @@ fun RedditAppScreen(
             SubredditPage()
         }
         composable(route = NavRoutes.Auth.name) {
-            Log.d("RedditApi", userToken.value)
-
-            val tokenExpirationStr = tokenExpirationFlow.value
-            if (tokenExpirationStr != "") {
+            Log.d(REDDIT_API, userToken.value)
+            val tokenExpiration = tokenExpirationFlow.value
+            if (tokenExpiration != null && tokenExpiration > -1) {
                 val currentTimestamp: Long = System.currentTimeMillis()
-                val expirationTimestamp: Long = tokenExpirationStr.toLong()
+                val expirationTimestamp: Long = tokenExpiration
                 if (expirationTimestamp > currentTimestamp) {
-                    Log.d("RedditApi", "token expired")
+                    Log.d(REDDIT_API, "token expired")
                     viewModel.refreshAccessToken()
                 } else {
                     SubredditPage()
@@ -73,7 +73,6 @@ fun RedditAppScreen(
         ) { navBackStackEntry ->
             if (userToken.value != "") {
                 SubredditPage()
-                Log.d("RedditApi", "token exists ${userToken.value}")
             } else {
                 val queryParamString = navBackStackEntry.arguments?.getString("params")
                 val paramMapping = viewModel.getParamMapping(queryParamString ?: "")

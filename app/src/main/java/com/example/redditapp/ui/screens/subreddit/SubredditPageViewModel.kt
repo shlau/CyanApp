@@ -3,6 +3,7 @@ package com.example.redditapp.ui.screens.subreddit
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.ui.model.SubredditListingModel
 import com.example.redditapp.ui.model.SubredditListingDataModel
@@ -13,13 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class SubredditPageUiState(
-    val listings: List<SubredditListingDataModel> = emptyList(),
-    val after: String = "",
-    val url: String?,
-    val subredditDisplayName: String = "Frontpage"
-)
 
 @HiltViewModel
 class SubredditPageViewModel @Inject constructor(private val redditAuthRepository: RedditAuthRepositoryImp) :
@@ -45,7 +39,7 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
                     )
                 }
             } catch (e: Exception) {
-                Log.d("RedditApi", e.toString())
+                Log.d(REDDIT_API, e.toString())
             }
         }
     }
@@ -59,7 +53,7 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
             if (url == null) {
                 _uiState.update { currentState ->
                     currentState.copy(
-                        subredditDisplayName = "Frontpage"
+                        subredditDisplayName = FRONTPAGE
                     )
                 }
                 redditAuthRepository.getHomePage(after)
@@ -101,7 +95,7 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
                     )
                 }
             } catch (e: Exception) {
-                Log.d("RedditApi", e.toString())
+                Log.d(REDDIT_API, e.toString())
             }
         }
     }

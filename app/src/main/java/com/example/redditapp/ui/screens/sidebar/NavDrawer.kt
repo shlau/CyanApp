@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.redditapp.R
 
+private const val ALL = "All"
+private const val ALL_SUBREDDIT = "/r/all"
+private const val FRONTPAGE = "Frontpage"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavDrawer(onSubredditClick: (String?, String?) -> Unit, modifier: Modifier = Modifier) {
@@ -42,14 +45,14 @@ fun NavDrawer(onSubredditClick: (String?, String?) -> Unit, modifier: Modifier =
         label = { Text(text = stringResource(R.string.frontpage)) },
         selected = false,
         onClick = {
-            onSubredditClick(null, "Frontpage")
+            onSubredditClick(null, FRONTPAGE)
         }
     )
     NavigationDrawerItem(
         label = { Text(text = stringResource(R.string.all)) },
         selected = false,
         onClick = {
-            onSubredditClick("/r/all", "All")
+            onSubredditClick(ALL_SUBREDDIT, ALL)
         }
     )
     Divider()
