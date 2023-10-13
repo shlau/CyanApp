@@ -45,15 +45,8 @@ fun RedditAppScreen(
         composable(route = NavRoutes.Auth.name) {
             Log.d(REDDIT_API, userToken.value)
             val tokenExpiration = tokenExpirationFlow.value
-            if (tokenExpiration != null && tokenExpiration > -1) {
-                val currentTimestamp: Long = System.currentTimeMillis()
-                val expirationTimestamp: Long = tokenExpiration
-                if (expirationTimestamp > currentTimestamp) {
-                    Log.d(REDDIT_API, "token expired")
-                    viewModel.refreshAccessToken()
-                } else {
-                    SubredditPage()
-                }
+            if (viewModel.isTokenExpired(tokenExpiration)) {
+                viewModel.refreshAccessToken()
             } else if (userToken.value == "") {
                 RedditAuthScreen()
             } else {

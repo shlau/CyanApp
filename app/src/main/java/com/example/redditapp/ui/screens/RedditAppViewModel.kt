@@ -8,6 +8,7 @@ import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.data.UserDataRepository
 import com.example.redditapp.ui.model.AccessResponse
+import com.example.redditapp.ui.screens.subreddit.SubredditPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val BEARER = "bearer"
+
 @HiltViewModel
 class RedditAppViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
@@ -63,6 +65,16 @@ class RedditAppViewModel @Inject constructor(
                 Log.d(REDDIT_API, e.toString())
             }
         }
+    }
+
+    fun isTokenExpired(tokenExpiration: Long): Boolean {
+        if (tokenExpiration == null || tokenExpiration < 0) {
+            return false
+        }
+
+        val currentTimestamp: Long = System.currentTimeMillis()
+        val expirationTimestamp: Long = tokenExpiration
+        return expirationTimestamp > currentTimestamp
     }
 
     fun refreshAccessToken() {
