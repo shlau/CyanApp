@@ -17,5 +17,6 @@ data class SubredditListingDataModel(
     val title: String,
     var thumbnail: String?,
     val url: String,
+    val permalink: String,
     @SerialName(value = "is_self") val isSelf: Boolean
 )

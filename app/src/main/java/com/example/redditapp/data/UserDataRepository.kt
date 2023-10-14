@@ -15,6 +15,7 @@ class UserDataRepository @Inject constructor(private val userDataStore: DataStor
         val USER_TOKEN = stringPreferencesKey("user_token")
         val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
         val TOKEN_EXPIRATION = longPreferencesKey("token_expiration")
+        val TOKEN_TIMESTAMP = longPreferencesKey("token_timestamp")
     }
 
     val userTokenFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
@@ -26,6 +27,11 @@ class UserDataRepository @Inject constructor(private val userDataStore: DataStor
     val tokenExpirationFlow: Flow<Long> = userDataStore.data.map { currentPreferences ->
         currentPreferences[PreferenceKeys.TOKEN_EXPIRATION] ?: -1
     }
+
+    val tokenTimestampFlow: Flow<Long> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.TOKEN_TIMESTAMP] ?: -1
+    }
+
 
     val clientIdFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
         currentPreferences[PreferenceKeys.CLIENT_ID] ?: ""
@@ -49,6 +55,11 @@ class UserDataRepository @Inject constructor(private val userDataStore: DataStor
         }
     }
 
+    suspend fun updateTokenTimestamp(timestamp: Long) {
+        userDataStore.edit { currentSettings ->
+            currentSettings[PreferenceKeys.TOKEN_TIMESTAMP] = timestamp
+        }
+    }
     suspend fun updateClientId(clientId: String) {
         userDataStore.edit { currentSettings ->
             currentSettings[PreferenceKeys.CLIENT_ID] = clientId
@@ -67,6 +78,9 @@ class UserDataRepository @Inject constructor(private val userDataStore: DataStor
 
     fun getTokenExpiration() =
         userDataStore.data.map { it[PreferenceKeys.TOKEN_EXPIRATION] }
+
+    fun getTokenTimestamp() =
+        userDataStore.data.map { it[PreferenceKeys.TOKEN_TIMESTAMP] }
 
     fun getClientId() =
         userDataStore.data.map { it[PreferenceKeys.CLIENT_ID] }

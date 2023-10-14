@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SubredditListings(
+    navToComments: (String, String) -> Unit,
     listings: List<SubredditListingDataModel>,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier
@@ -54,14 +55,19 @@ fun SubredditListings(
     }
     LazyColumn(state = listState, modifier = Modifier.padding(innerPadding)) {
         items(listings) {
-            SubredditListing(listing = it)
+            SubredditListing(
+                permalink = it.permalink,
+                url = it.url,
+                navToComments = navToComments,
+                listing = it
+            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubredditPage(modifier: Modifier = Modifier) {
+fun SubredditPage(navToComments: (String, String) -> Unit, modifier: Modifier = Modifier) {
     var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val viewModel: SubredditPageViewModel = hiltViewModel()
@@ -87,6 +93,7 @@ fun SubredditPage(modifier: Modifier = Modifier) {
             })
         }) { innerPadding ->
             SubredditListings(
+                navToComments = navToComments,
                 innerPadding = innerPadding,
                 listings = subredditPageUiState.value.listings
             )

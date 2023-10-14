@@ -2,6 +2,7 @@ package com.example.redditapp.modules
 
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
+import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
 import com.example.redditapp.data.UserDataRepository
 import com.example.redditapp.network.RedditApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -29,8 +30,6 @@ private val json = Json {
 @InstallIn(SingletonComponent::class)
 @Module
 object NetworkModule {
-    private const val OAUTH_BASE_URL = "https://oauth.reddit.com/"
-
     private class LoggingInterceptor(private val userDataRepository: UserDataRepository) :
         Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {

@@ -28,6 +28,7 @@ class RedditAppViewModel @Inject constructor(
 ) : ViewModel() {
     val userTokenFlow: Flow<String> = userDataRepository.userTokenFlow
     val tokenExpirationFlow: Flow<Long> = userDataRepository.tokenExpirationFlow
+    val tokenTimestampFlow: Flow<Long> = userDataRepository.tokenTimestampFlow
 
     private val _uiState = MutableStateFlow(RedditAppUiState())
     val uiState: StateFlow<RedditAppUiState> = _uiState.asStateFlow()
@@ -50,6 +51,13 @@ class RedditAppViewModel @Inject constructor(
         return mapping
     }
 
+    private suspend fun updateTokenData(res: AccessResponse) {
+        userDataRepository.updateUserToken("$BEARER ${res.accessToken}")
+        userDataRepository.updateRefreshToken(res.refreshToken)
+        userDataRepository.updateTokenExpiration(res.expiresIn)
+        userDataRepository.updateTokenTimestamp(System.currentTimeMillis())
+    }
+
     fun getAccessResponse(code: String, clientId: String) {
         viewModelScope.launch {
             try {
@@ -57,9 +65,7 @@ class RedditAppViewModel @Inject constructor(
                 val credentials: String = okhttp3.Credentials.basic(clientId, clientSecret)
                 val res =
                     authRepository.getAccessToken(code = code, authorization = credentials)
-                userDataRepository.updateUserToken("$BEARER ${res.accessToken}")
-                userDataRepository.updateRefreshToken(res.refreshToken)
-                userDataRepository.updateTokenExpiration(res.expiresIn)
+                updateTokenData(res)
                 userDataRepository.updateClientId(clientId)
             } catch (e: Exception) {
                 Log.d(REDDIT_API, e.toString())
@@ -67,14 +73,14 @@ class RedditAppViewModel @Inject constructor(
         }
     }
 
-    fun isTokenExpired(tokenExpiration: Long): Boolean {
-        if (tokenExpiration == null || tokenExpiration < 0) {
+    fun isTokenExpired(tokenExpiration: Long, tokenTimestamp: Long): Boolean {
+        if (tokenExpiration == null || tokenExpiration < 0 || tokenTimestamp == null || tokenTimestamp < 0) {
             return false
         }
 
         val currentTimestamp: Long = System.currentTimeMillis()
-        val expirationTimestamp: Long = tokenExpiration
-        return expirationTimestamp > currentTimestamp
+        val expiration: Long = tokenTimestamp + (tokenExpiration * 1000)
+        return currentTimestamp > expiration
     }
 
     fun refreshAccessToken() {
@@ -88,8 +94,7 @@ class RedditAppViewModel @Inject constructor(
                         refreshToken = userDataRepository.getRefreshToken().first() ?: "",
                         authorization = credentials
                     )
-                userDataRepository.updateUserToken("$BEARER ${res.accessToken}")
-                userDataRepository.updateRefreshToken(res.refreshToken)
+                updateTokenData(res)
             } catch (e: Exception) {
                 Log.d(REDDIT_API, e.toString())
             }

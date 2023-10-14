@@ -19,11 +19,13 @@ import androidx.navigation.navDeepLink
 import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.R
 import com.example.redditapp.ui.screens.auth.RedditAuthScreen
+import com.example.redditapp.ui.screens.comments.CommentsScreen
 import com.example.redditapp.ui.screens.subreddit.SubredditPage
 
 enum class NavRoutes(@StringRes title: Int) {
     Auth(R.string.auth),
     Login(R.string.login),
+    Comments(R.string.comments),
     Home(R.string.home)
 }
 
@@ -36,21 +38,28 @@ fun RedditAppScreen(
     val userToken = viewModel.userTokenFlow.collectAsStateWithLifecycle(initialValue = "")
     val tokenExpirationFlow =
         viewModel.tokenExpirationFlow.collectAsStateWithLifecycle(initialValue = -1)
+    val tokenTimestampFlow =
+        viewModel.tokenTimestampFlow.collectAsStateWithLifecycle(initialValue = -1)
     val redditAppUiState = viewModel.uiState.collectAsState()
 
     NavHost(navController = navController, startDestination = NavRoutes.Auth.name) {
+        fun navToComments(url: String, permalink: String) {
+            navController.navigate("${NavRoutes.Comments.name}?url=$url&permalink=$permalink")
+        }
+        composable(route = "${NavRoutes.Comments.name}?url={url}&permalink={permalink}") {
+            CommentsScreen()
+        }
         composable(route = NavRoutes.Home.name) {
-            SubredditPage()
+            SubredditPage(navToComments = { url: String, permalink: String -> navToComments(url, permalink) })
         }
         composable(route = NavRoutes.Auth.name) {
             Log.d(REDDIT_API, userToken.value)
-            val tokenExpiration = tokenExpirationFlow.value
-            if (viewModel.isTokenExpired(tokenExpiration)) {
+            if (viewModel.isTokenExpired(tokenExpirationFlow.value, tokenTimestampFlow.value)) {
                 viewModel.refreshAccessToken()
             } else if (userToken.value == "") {
                 RedditAuthScreen()
             } else {
-                SubredditPage()
+                SubredditPage(navToComments = { url: String, permalink: String -> navToComments(url, permalink) })
             }
         }
         composable(
@@ -65,7 +74,7 @@ fun RedditAppScreen(
             })
         ) { navBackStackEntry ->
             if (userToken.value != "") {
-                SubredditPage()
+                SubredditPage(navToComments = { url: String, permalink: String -> navToComments(url, permalink) })
             } else {
                 val queryParamString = navBackStackEntry.arguments?.getString("params")
                 val paramMapping = viewModel.getParamMapping(queryParamString ?: "")

@@ -3,6 +3,7 @@ package com.example.redditapp.ui.screens.subreddit
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,12 +36,18 @@ import com.example.redditapp.ui.model.SubredditListingModel
 import com.example.redditapp.ui.model.SubredditListingDataModel
 
 @Composable
-fun SubredditListing(listing: SubredditListingDataModel, modifier: Modifier = Modifier) {
+fun SubredditListing(
+    permalink: String,
+    url: String,
+    navToComments: (String, String) -> Unit,
+    listing: SubredditListingDataModel, modifier: Modifier = Modifier
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .border(width = 1.dp, color = Color.Black)
-            .defaultMinSize(minHeight = 60.dp),
+            .defaultMinSize(minHeight = 60.dp)
+            .clickable { navToComments(url, permalink) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -69,18 +76,19 @@ fun SubredditListing(listing: SubredditListingDataModel, modifier: Modifier = Mo
 
 //@Preview
 @Composable
-fun listingPreview() {
+fun listingPreview(
+) {
     val l = SubredditListingDataModel(
         isSelf = false,
         thumbnail = "",
         title = "Palestinians tearing down Israeli fence which kept them inside",
-        url = "test"
+        url = "test",
+        permalink = "testing perma"
     )
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
     ) {
-        SubredditListing(listing = l)
     }
 }
