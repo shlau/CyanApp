@@ -36,9 +36,12 @@ object NetworkModule {
             val token = runBlocking {
                 userDataRepository.getToken().first()
             }
-            val newRequest =
-                chain.request().newBuilder().addHeader("Authorization", "$token" ?: "").build()
-            return chain.proceed(newRequest)
+            var request = chain.request()
+            if(request.url.encodedPath != "/api/v1/access_token/") {
+                request =
+                    chain.request().newBuilder().addHeader("Authorization", "$token" ?: "").build()
+            }
+            return chain.proceed(request)
         }
     }
 
