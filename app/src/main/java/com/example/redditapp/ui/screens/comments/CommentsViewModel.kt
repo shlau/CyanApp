@@ -35,7 +35,7 @@ class CommentsViewModel @Inject constructor(
             val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
             val comments: List<CommentModel> =
                 (commentsResponse[1].data.children)
-            getFlattenedComments(comments)
+            getFlattenedComments(comments, 0)
             _uiState.update { currentState ->
                 currentState.copy(
                     comments = initialComments,
@@ -44,13 +44,14 @@ class CommentsViewModel @Inject constructor(
         }
     }
 
-    private fun getFlattenedComments(comments: List<CommentModel>) {
+    private fun getFlattenedComments(comments: List<CommentModel>, depth: Int) {
         comments.forEach {
+            it.depth = depth
             initialComments.add(it)
             val replies = it.data.replies
             if (replies != null) {
                 val commentChildren = replies.data.children
-                getFlattenedComments(commentChildren)
+                getFlattenedComments(commentChildren, depth + 1)
             }
         }
     }

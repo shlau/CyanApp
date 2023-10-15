@@ -35,11 +35,15 @@ fun CommentChain(comments: List<CommentModel>, modifier: Modifier = Modifier) {
         items(commentsUiState.value.comments) {
             val commentData: CommentDataModel = it.data
             val body: String? = commentData.body
+            val depth: Int = it.depth ?: 0
 
             if (body != null) {
                 Text(
                     body,
-                    modifier = Modifier.border(width = 1.dp, color = Color.Black).padding(10.dp)
+                    modifier = Modifier
+                        .border(width = 1.dp, color = Color.Black)
+                        .padding(10.dp)
+                        .padding(start = (depth * 10).dp)
                 )
             }
         }

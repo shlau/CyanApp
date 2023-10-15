@@ -17,7 +17,8 @@ data class CommentsDataModel(val children: List<CommentModel>)
 @Serializable
 data class CommentModel(
     @Serializable(with = CommentDataSerializer::class)
-    val data: CommentDataModel
+    val data: CommentDataModel,
+    var depth: Int? = null
 )
 
 @Serializable
@@ -25,7 +26,7 @@ data class CommentDataModel(
     val author: String? = null,
     val replies: CommentsModel? = null,
     val body: String? = null,
-    val ups: Int? = null
+    val ups: Int? = null,
 )
 
 object CommentDataSerializer :
