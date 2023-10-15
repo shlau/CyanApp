@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,16 +51,28 @@ fun RedditAppScreen(
             CommentsScreen()
         }
         composable(route = NavRoutes.Home.name) {
-            SubredditPage(navToComments = { url: String, permalink: String -> navToComments(url, permalink) })
+            SubredditPage(navToComments = { url: String, permalink: String ->
+                navToComments(
+                    url,
+                    permalink
+                )
+            })
         }
         composable(route = NavRoutes.Auth.name) {
             Log.d(REDDIT_API, userToken.value)
             if (viewModel.isTokenExpired(tokenExpirationFlow.value, tokenTimestampFlow.value)) {
-                viewModel.refreshAccessToken()
+                LaunchedEffect(Unit) {
+                    viewModel.refreshAccessToken()
+                }
             } else if (userToken.value == "") {
                 RedditAuthScreen()
             } else {
-                SubredditPage(navToComments = { url: String, permalink: String -> navToComments(url, permalink) })
+                SubredditPage(navToComments = { url: String, permalink: String ->
+                    navToComments(
+                        url,
+                        permalink
+                    )
+                })
             }
         }
         composable(
@@ -74,15 +87,22 @@ fun RedditAppScreen(
             })
         ) { navBackStackEntry ->
             if (userToken.value != "") {
-                SubredditPage(navToComments = { url: String, permalink: String -> navToComments(url, permalink) })
+                SubredditPage(navToComments = { url: String, permalink: String ->
+                    navToComments(
+                        url,
+                        permalink
+                    )
+                })
             } else {
                 val queryParamString = navBackStackEntry.arguments?.getString("params")
                 val paramMapping = viewModel.getParamMapping(queryParamString ?: "")
                 val code = paramMapping["code"]
                 val clientId = paramMapping["state"]
-                if (code != null && clientId != null && redditAppUiState.value.code == "") {
-                    viewModel.updateCode(code)
-                    viewModel.getAccessResponse(code, clientId)
+                LaunchedEffect(Unit) {
+                    if (code != null && clientId != null && redditAppUiState.value.code == "") {
+                        viewModel.updateCode(code)
+                        viewModel.getAccessResponse(code, clientId)
+                    }
                 }
             }
         }
