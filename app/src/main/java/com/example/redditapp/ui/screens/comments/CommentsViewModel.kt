@@ -25,7 +25,12 @@ class CommentsViewModel @Inject constructor(
 ) : ViewModel() {
     private val initialComments = mutableListOf<CommentModel>()
     private val _uiState =
-        MutableStateFlow(CommentsUiState(comments = mutableListOf<CommentModel>()))
+        MutableStateFlow(
+            CommentsUiState(
+                comments = mutableListOf<CommentModel>(),
+                originalPost = null
+            )
+        )
     val uiState = _uiState.asStateFlow()
     val url = checkNotNull(savedStateHandle.get<String>("url"))
     val permalink = checkNotNull(savedStateHandle.get<String>("permalink"))
@@ -33,25 +38,27 @@ class CommentsViewModel @Inject constructor(
     private fun getComments(url: String) {
         viewModelScope.launch {
             val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
+            val originalPost: CommentModel = commentsResponse[0].data.children[0]
             val comments: List<CommentModel> =
                 (commentsResponse[1].data.children)
-            getFlattenedComments(comments, 0)
+            flattenedComments(comments, 0)
             _uiState.update { currentState ->
                 currentState.copy(
                     comments = initialComments,
+                    originalPost = originalPost
                 )
             }
         }
     }
 
-    private fun getFlattenedComments(comments: List<CommentModel>, depth: Int) {
+    private fun flattenedComments(comments: List<CommentModel>, depth: Int) {
         comments.forEach {
             it.depth = depth
             initialComments.add(it)
             val replies = it.data.replies
             if (replies != null) {
                 val commentChildren = replies.data.children
-                getFlattenedComments(commentChildren, depth + 1)
+                flattenedComments(commentChildren, depth + 1)
             }
         }
     }
