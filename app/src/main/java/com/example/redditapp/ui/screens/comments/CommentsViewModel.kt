@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,12 +19,12 @@ class CommentsViewModel @Inject constructor(
     private val authRepository: RedditAuthRepositoryImp,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val flattenedComments = mutableSetOf<UUID>()
+    private val flattenedComments = mutableSetOf<String>()
     private val _uiState =
         MutableStateFlow(
             CommentsUiState(
                 comments = listOf<CommentModel>(),
-                expandedComments = setOf<UUID>(),
+                expandedComments = setOf<String>(),
                 originalPost = null
             )
         )
@@ -34,24 +33,24 @@ class CommentsViewModel @Inject constructor(
     val permalink = checkNotNull(savedStateHandle.get<String>("permalink"))
 
     fun toggleExpandedComments(commentNode: CommentModel) {
-        if (_uiState.value.expandedComments.contains(commentNode.id)) {
+        if (_uiState.value.expandedComments.contains(commentNode.data.id)) {
 
             _uiState.update { currentState ->
                 currentState.copy(
-                    expandedComments = currentState.expandedComments subtract setOf(commentNode.id!!)
+                    expandedComments = currentState.expandedComments subtract setOf(commentNode.data.id!!)
                 )
             }
         } else {
             _uiState.update { currentState ->
                 currentState.copy(
-                    expandedComments = currentState.expandedComments union setOf(commentNode.id!!)
+                    expandedComments = currentState.expandedComments union setOf(commentNode.data.id!!)
                 )
             }
         }
     }
 
     fun isExpanded(commentNode: CommentModel): Boolean {
-        return _uiState.value.expandedComments.contains(commentNode.id)
+        return _uiState.value.expandedComments.contains(commentNode.data.id)
     }
 
     private fun getComments(url: String) {
@@ -74,11 +73,10 @@ class CommentsViewModel @Inject constructor(
     private fun getFlattenedComments(
         comments: List<CommentModel>,
         depth: Int
-    ): Set<UUID> {
+    ): Set<String> {
         comments.forEach {
             it.depth = depth
-            val id: UUID = UUID.randomUUID()
-            it.id = id
+            val id: String = it.data.id
             flattenedComments.add(id)
             val replies = it.data.replies
             if (replies != null) {

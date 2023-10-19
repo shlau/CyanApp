@@ -7,7 +7,7 @@ import java.util.UUID
 data class CommentsUiState(
     var originalPost: CommentModel?,
     var comments: List<CommentModel>,
-    var expandedComments: Set<UUID>,
+    var expandedComments: Set<String>,
     val commentColors: List<Color> = listOf(
         Color.Red,
         Color.Green,
