@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -21,6 +22,7 @@ import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.R
 import com.example.redditapp.ui.screens.auth.RedditAuthScreen
 import com.example.redditapp.ui.screens.comments.CommentsScreen
+import com.example.redditapp.ui.screens.comments.CommentsViewModel
 import com.example.redditapp.ui.screens.subreddit.SubredditPage
 
 enum class NavRoutes(@StringRes title: Int) {
@@ -36,6 +38,7 @@ fun RedditAppScreen(
     modifier: Modifier = Modifier
 ) {
     val viewModel: RedditAppViewModel = viewModel()
+    val commentsViewModel: CommentsViewModel = hiltViewModel()
     val userToken = viewModel.userTokenFlow.collectAsStateWithLifecycle(initialValue = "")
     val tokenExpirationFlow =
         viewModel.tokenExpirationFlow.collectAsStateWithLifecycle(initialValue = -1)
@@ -47,8 +50,17 @@ fun RedditAppScreen(
         fun navToComments(url: String, permalink: String) {
             navController.navigate("${NavRoutes.Comments.name}?url=$url&permalink=$permalink")
         }
-        composable(route = "${NavRoutes.Comments.name}?url={url}&permalink={permalink}") {
-            CommentsScreen()
+        composable(
+            route = "${NavRoutes.Comments.name}?url={url}&permalink={permalink}",
+            arguments = listOf(navArgument("url") {
+                type = NavType.StringType
+            }, navArgument("permalink") {
+                type = NavType.StringType
+            })
+        ) {navBackStackEntry ->
+            val url = navBackStackEntry.arguments?.getString("url")
+            val permalink = navBackStackEntry.arguments?.getString("permalink")
+            CommentsScreen(commentsViewModel, url ?: "", permalink ?: "")
         }
         composable(route = NavRoutes.Home.name) {
             SubredditPage(navToComments = { url: String, permalink: String ->

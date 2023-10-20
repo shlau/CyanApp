@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,15 +19,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
 import com.example.redditapp.ui.model.CommentDataModel
 import com.example.redditapp.ui.model.CommentModel
 
 
 @Composable
-fun CommentsScreen(modifier: Modifier = Modifier) {
-    val viewModel: CommentsViewModel = hiltViewModel()
+fun CommentsScreen(
+    viewModel: CommentsViewModel,
+    url: String,
+    permalink: String,
+    modifier: Modifier = Modifier
+) {
     val commentsUiState = viewModel.uiState.collectAsState()
     val originalPostData = commentsUiState.value.originalPost?.data
+    LaunchedEffect(permalink) {
+        if (commentsUiState.value.permalink != permalink) {
+            viewModel.getComments("$OAUTH_BASE_URL$permalink.json")
+            viewModel.updatePermalink(permalink)
+        }
+    }
     if (originalPostData != null) {
         Column {
             Column(modifier = Modifier.padding(10.dp)) {

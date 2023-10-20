@@ -17,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CommentsViewModel @Inject constructor(
     private val authRepository: RedditAuthRepositoryImp,
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val flattenedComments = mutableSetOf<String>()
     private val _uiState =
@@ -29,8 +28,9 @@ class CommentsViewModel @Inject constructor(
             )
         )
     val uiState = _uiState.asStateFlow()
-    val url = checkNotNull(savedStateHandle.get<String>("url"))
-    val permalink = checkNotNull(savedStateHandle.get<String>("permalink"))
+    fun updatePermalink(permalink: String) {
+        _uiState.update { currentState -> currentState.copy(permalink = permalink) }
+    }
 
     fun toggleExpandedComments(commentNode: CommentModel) {
         if (_uiState.value.expandedComments.contains(commentNode.data.id)) {
@@ -53,7 +53,7 @@ class CommentsViewModel @Inject constructor(
         return _uiState.value.expandedComments.contains(commentNode.data.id)
     }
 
-    private fun getComments(url: String) {
+    fun getComments(url: String) {
         viewModelScope.launch {
             val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
             val originalPost: CommentModel = commentsResponse[0].data.children[0]
@@ -86,9 +86,5 @@ class CommentsViewModel @Inject constructor(
         }
 
         return flattenedComments
-    }
-
-    init {
-        getComments("$OAUTH_BASE_URL$permalink.json")
     }
 }
