@@ -59,7 +59,7 @@ class CommentsViewModel @Inject constructor(
             val originalPost: CommentModel = commentsResponse[0].data.children[0]
             val comments: List<CommentModel> =
                 (commentsResponse[1].data.children)
-            val expandedComments = getFlattenedComments(comments, 0)
+            val expandedComments = getFlattenedComments(comments)
             _uiState.update { currentState ->
                 currentState.copy(
                     expandedComments = expandedComments,
@@ -72,16 +72,14 @@ class CommentsViewModel @Inject constructor(
 
     private fun getFlattenedComments(
         comments: List<CommentModel>,
-        depth: Int
     ): Set<String> {
         comments.forEach {
-            it.depth = depth
             val id: String = it.data.id
             flattenedComments.add(id)
             val replies = it.data.replies
             if (replies != null) {
                 val commentChildren = replies.data.children
-                getFlattenedComments(commentChildren, depth + 1)
+                getFlattenedComments(commentChildren)
             }
         }
 
