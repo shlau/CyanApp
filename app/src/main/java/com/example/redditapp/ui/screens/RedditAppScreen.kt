@@ -2,8 +2,6 @@ package com.example.redditapp.ui.screens
 
 import android.content.Intent
 import android.util.Log
-import androidx.annotation.StringRes
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,17 +17,16 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.redditapp.Constants.Companion.REDDIT_API
-import com.example.redditapp.R
 import com.example.redditapp.ui.screens.auth.RedditAuthScreen
 import com.example.redditapp.ui.screens.comments.CommentsScreen
 import com.example.redditapp.ui.screens.comments.CommentsViewModel
 import com.example.redditapp.ui.screens.subreddit.SubredditPage
 
-enum class NavRoutes(@StringRes title: Int) {
-    Auth(R.string.auth),
-    Login(R.string.login),
-    Comments(R.string.comments),
-    Home(R.string.home)
+enum class NavRoutes() {
+    AUTH,
+    LOGIN,
+    COMMENTS,
+    HOME
 }
 
 @Composable
@@ -46,12 +43,12 @@ fun RedditAppScreen(
         viewModel.tokenTimestampFlow.collectAsStateWithLifecycle(initialValue = -1)
     val redditAppUiState = viewModel.uiState.collectAsState()
 
-    NavHost(navController = navController, startDestination = NavRoutes.Auth.name) {
+    NavHost(navController = navController, startDestination = NavRoutes.AUTH.name) {
         fun navToComments(url: String, permalink: String) {
-            navController.navigate("${NavRoutes.Comments.name}?url=$url&permalink=$permalink")
+            navController.navigate("${NavRoutes.COMMENTS.name}?url=$url&permalink=$permalink")
         }
         composable(
-            route = "${NavRoutes.Comments.name}?url={url}&permalink={permalink}",
+            route = "${NavRoutes.COMMENTS.name}?url={url}&permalink={permalink}",
             arguments = listOf(navArgument("url") {
                 type = NavType.StringType
             }, navArgument("permalink") {
@@ -62,7 +59,7 @@ fun RedditAppScreen(
             val permalink = navBackStackEntry.arguments?.getString("permalink")
             CommentsScreen(commentsViewModel, url ?: "", permalink ?: "")
         }
-        composable(route = NavRoutes.Home.name) {
+        composable(route = NavRoutes.HOME.name) {
             SubredditPage(navToComments = { url: String, permalink: String ->
                 navToComments(
                     url,
@@ -70,7 +67,7 @@ fun RedditAppScreen(
                 )
             })
         }
-        composable(route = NavRoutes.Auth.name) {
+        composable(route = NavRoutes.AUTH.name) {
             Log.d(REDDIT_API, userToken.value)
             if (viewModel.isTokenExpired(tokenExpirationFlow.value, tokenTimestampFlow.value)) {
                 LaunchedEffect(Unit) {
@@ -88,7 +85,7 @@ fun RedditAppScreen(
             }
         }
         composable(
-            route = NavRoutes.Login.name,
+            route = NavRoutes.LOGIN.name,
             deepLinks = listOf(navDeepLink {
                 uriPattern = "cyan://reddit?{params}"
                 action = Intent.ACTION_VIEW
