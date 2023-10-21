@@ -1,9 +1,11 @@
 package com.example.redditapp.ui.screens.comments
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
+import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.ui.model.CommentModel
 import com.example.redditapp.ui.model.CommentsModel
@@ -34,7 +36,6 @@ class CommentsViewModel @Inject constructor(
 
     fun toggleExpandedComments(commentNode: CommentModel) {
         if (_uiState.value.expandedComments.contains(commentNode.data.id)) {
-
             _uiState.update { currentState ->
                 currentState.copy(
                     expandedComments = currentState.expandedComments subtract setOf(commentNode.data.id!!)
@@ -84,5 +85,8 @@ class CommentsViewModel @Inject constructor(
         }
 
         return flattenedComments
+    }
+    init {
+        Log.d(REDDIT_API, "init comments view model")
     }
 }

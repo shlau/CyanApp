@@ -5,9 +5,9 @@ import com.example.redditapp.ui.model.CommentModel
 import java.util.UUID
 
 data class CommentsUiState(
-    var originalPost: CommentModel?,
-    var comments: List<CommentModel>,
-    var expandedComments: Set<String>,
+    val originalPost: CommentModel?,
+    val comments: List<CommentModel>,
+    val expandedComments: Set<String>,
     val commentColors: List<Color> = listOf(
         Color.Red,
         Color.Green,

@@ -22,7 +22,7 @@ import com.example.redditapp.ui.screens.comments.CommentsScreen
 import com.example.redditapp.ui.screens.comments.CommentsViewModel
 import com.example.redditapp.ui.screens.subreddit.SubredditPage
 
-enum class NavRoutes() {
+enum class NavRoutes {
     AUTH,
     LOGIN,
     COMMENTS,
@@ -35,13 +35,13 @@ fun RedditAppScreen(
     modifier: Modifier = Modifier
 ) {
     val viewModel: RedditAppViewModel = viewModel()
-    val commentsViewModel: CommentsViewModel = hiltViewModel()
     val userToken = viewModel.userTokenFlow.collectAsStateWithLifecycle(initialValue = "")
     val tokenExpirationFlow =
         viewModel.tokenExpirationFlow.collectAsStateWithLifecycle(initialValue = -1)
     val tokenTimestampFlow =
         viewModel.tokenTimestampFlow.collectAsStateWithLifecycle(initialValue = -1)
     val redditAppUiState = viewModel.uiState.collectAsState()
+    val commentsViewModel: CommentsViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = NavRoutes.AUTH.name) {
         fun navToComments(url: String, permalink: String) {
@@ -54,7 +54,7 @@ fun RedditAppScreen(
             }, navArgument("permalink") {
                 type = NavType.StringType
             })
-        ) {navBackStackEntry ->
+        ) { navBackStackEntry ->
             val url = navBackStackEntry.arguments?.getString("url")
             val permalink = navBackStackEntry.arguments?.getString("permalink")
             CommentsScreen(commentsViewModel, url ?: "", permalink ?: "")

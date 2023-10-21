@@ -19,10 +19,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
 import com.example.redditapp.ui.model.CommentDataModel
 import com.example.redditapp.ui.model.CommentModel
 
+enum class CommentKind {
+    more
+}
 
 @Composable
 fun CommentsScreen(
@@ -33,7 +37,7 @@ fun CommentsScreen(
 ) {
     val commentsUiState = viewModel.uiState.collectAsState()
     val originalPostData = commentsUiState.value.originalPost?.data
-    LaunchedEffect(permalink) {
+    LaunchedEffect(Unit) {
         if (commentsUiState.value.permalink != permalink) {
             viewModel.getComments("$OAUTH_BASE_URL$permalink.json")
             viewModel.updatePermalink(permalink)
@@ -56,14 +60,15 @@ fun CommentsScreen(
                     )
                 }
             }
-            CommentsContainer(commentsUiState.value.comments, modifier)
+            CommentsContainer(
+                viewModel,
+                commentsUiState.value.comments, modifier)
         }
     }
 }
 
 @Composable
-fun CommentsContainer(comments: List<CommentModel>, modifier: Modifier = Modifier) {
-    val viewModel: CommentsViewModel = hiltViewModel()
+fun CommentsContainer(viewModel: CommentsViewModel,comments: List<CommentModel>, modifier: Modifier = Modifier) {
     val commentsUiState = viewModel.uiState.collectAsState()
     LazyColumn {
         commentNodes(
@@ -95,7 +100,7 @@ fun LazyListScope.commentNode(
     toggleExpanded: (node: CommentModel) -> Unit
 ) {
     val commentData: CommentDataModel = node.data
-
+    val kind: String = node.kind
     item {
         val bodyHtml: String? = commentData.body
         if (bodyHtml != null) {
@@ -118,6 +123,16 @@ fun LazyListScope.commentNode(
                         )
                         .padding(10.dp)
                 )
+            }
+        }
+        if (kind == CommentKind.more.name) {
+            Box(
+                modifier = Modifier
+                    .border(width = 1.dp, color = Color.Cyan)
+                    .padding(start = 10.dp)
+                    .padding(start = (depth * 10).dp)
+            ) {
+                Text(text = "Load more...", color = Color.Blue)
             }
         }
     }
