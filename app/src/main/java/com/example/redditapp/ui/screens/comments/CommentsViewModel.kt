@@ -71,6 +71,22 @@ class CommentsViewModel @Inject constructor(
         }
     }
 
+    fun loadMoreComments(commentNode: CommentModel?, loadNode: CommentModel) {
+        if (commentNode != null) {
+            viewModelScope.launch {
+                val parentId: String = commentNode.data.id
+                val url: String = ("$OAUTH_BASE_URL${_uiState.value.permalink}${parentId}")
+                val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
+                val comments: List<CommentModel> =
+                    (commentsResponse[1].data.children)
+                val replies: CommentsModel? = comments[0].data.replies
+                commentNode.data = commentNode.data.copy(replies = replies)
+                getFlattenedComments(comments)
+                toggleExpandedComments(loadNode)
+            }
+        }
+    }
+
     private fun getFlattenedComments(
         comments: List<CommentModel>,
     ): Set<String> {
@@ -86,6 +102,7 @@ class CommentsViewModel @Inject constructor(
 
         return flattenedComments
     }
+
     init {
         Log.d(REDDIT_API, "init comments view model")
     }

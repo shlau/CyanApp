@@ -18,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
 import com.example.redditapp.ui.model.CommentDataModel
 import com.example.redditapp.ui.model.CommentModel
@@ -62,16 +60,23 @@ fun CommentsScreen(
             }
             CommentsContainer(
                 viewModel,
-                commentsUiState.value.comments, modifier)
+                commentsUiState.value.comments, modifier
+            )
         }
     }
 }
 
 @Composable
-fun CommentsContainer(viewModel: CommentsViewModel,comments: List<CommentModel>, modifier: Modifier = Modifier) {
+fun CommentsContainer(
+    viewModel: CommentsViewModel,
+    comments: List<CommentModel>,
+    modifier: Modifier = Modifier
+) {
     val commentsUiState = viewModel.uiState.collectAsState()
     LazyColumn {
         commentNodes(
+            null,
+            { node: CommentModel?, loadNode: CommentModel -> viewModel.loadMoreComments(node, loadNode) },
             comments,
             0,
             commentsUiState.value.commentColors,
@@ -81,6 +86,8 @@ fun CommentsContainer(viewModel: CommentsViewModel,comments: List<CommentModel>,
 }
 
 fun LazyListScope.commentNodes(
+    parentNode: CommentModel?,
+    loadMoreComments: (node: CommentModel?, loadNode: CommentModel) -> Unit,
     nodes: List<CommentModel>,
     depth: Int,
     commentColors: List<Color>,
@@ -88,11 +95,21 @@ fun LazyListScope.commentNodes(
     toggleExpanded: (node: CommentModel) -> Unit
 ) {
     nodes.forEach { node ->
-        commentNode(node, depth, commentColors, isExpanded, toggleExpanded)
+        commentNode(
+            parentNode,
+            loadMoreComments,
+            node,
+            depth,
+            commentColors,
+            isExpanded,
+            toggleExpanded
+        )
     }
 }
 
 fun LazyListScope.commentNode(
+    parentNode: CommentModel?,
+    loadMoreComments: (node: CommentModel?, loadNode: CommentModel) -> Unit,
     node: CommentModel,
     depth: Int,
     commentColors: List<Color>,
@@ -131,13 +148,25 @@ fun LazyListScope.commentNode(
                     .border(width = 1.dp, color = Color.Cyan)
                     .padding(start = 10.dp)
                     .padding(start = (depth * 10).dp)
+                    .clickable {
+                        loadMoreComments(parentNode,node)
+                    }
             ) {
                 Text(text = "Load more...", color = Color.Blue)
             }
         }
     }
-    val replies: List<CommentModel>? = commentData.replies?.data?.children
+    val replies: List<CommentModel>? = (commentData.replies?.data?.children)
     if (replies != null && isExpanded(node)) {
-        commentNodes(replies, depth + 1, commentColors, isExpanded, toggleExpanded)
+        commentNodes(
+            node,
+            loadMoreComments,
+            replies,
+            depth + 1,
+            commentColors,
+            isExpanded,
+            toggleExpanded
+        )
     }
 }
+

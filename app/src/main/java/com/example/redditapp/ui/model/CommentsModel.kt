@@ -1,6 +1,5 @@
 package com.example.redditapp.ui.model
 
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -8,6 +7,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+
 @Serializable
 data class CommentsModel(val data: CommentsDataModel)
 
@@ -17,7 +17,7 @@ data class CommentsDataModel(val children: List<CommentModel>)
 @Serializable
 data class CommentModel(
     @Serializable(with = CommentDataSerializer::class)
-    val data: CommentDataModel,
+    var data: CommentDataModel,
     val kind: String
 )
 
@@ -31,6 +31,7 @@ data class CommentDataModel(
     val title: String? = null,
     @SerialName("self_text") val selfText: String? = null,
     val id: String,
+    @SerialName("parent_id") val parentId: String? = null,
     var depth: Int? = null,
 )
 
