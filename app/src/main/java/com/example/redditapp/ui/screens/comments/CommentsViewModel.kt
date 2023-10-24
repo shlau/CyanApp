@@ -72,17 +72,35 @@ class CommentsViewModel @Inject constructor(
     }
 
     fun loadMoreComments(commentNode: CommentModel?, loadNode: CommentModel) {
-        if (commentNode != null) {
+        var parentId: String? = null
+        parentId = commentNode?.data?.id ?: loadNode.data.id
+        if (parentId != null) {
             viewModelScope.launch {
-                val parentId: String = commentNode.data.id
-                val url: String = ("$OAUTH_BASE_URL${_uiState.value.permalink}${parentId}")
-                val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
-                val comments: List<CommentModel> =
-                    (commentsResponse[1].data.children)
-                val replies: CommentsModel? = comments[0].data.replies
-                commentNode.data = commentNode.data.copy(replies = replies)
-                getFlattenedComments(comments)
-                toggleExpandedComments(loadNode)
+                try {
+                    if (commentNode != null) {
+                        val url: String = ("$OAUTH_BASE_URL${_uiState.value.permalink}${parentId}")
+                        val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
+                        val comments: List<CommentModel> =
+                            (commentsResponse[1].data.children)
+                        val replies: CommentsModel? = comments[0].data.replies
+
+                        commentNode.data = commentNode.data.copy(replies = replies)
+                        getFlattenedComments(comments)
+                    } else {
+                        val postId: String? = loadNode.data.parentId
+                        if (postId != null) {
+                            val res: List<CommentModel> = authRepository.getMoreChildren(
+                                postId,
+                                loadNode.data.children!!.joinToString(",")
+                            )
+                            _uiState.update { currentState -> currentState.copy(comments = _uiState.value.comments + res) }
+                            getFlattenedComments(res)
+                        }
+                    }
+                    toggleExpandedComments(loadNode)
+                } catch (e: Exception) {
+                    Log.d(REDDIT_API, e.toString())
+                }
             }
         }
     }

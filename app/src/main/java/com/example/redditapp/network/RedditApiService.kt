@@ -1,7 +1,9 @@
 package com.example.redditapp.network
 
 import com.example.redditapp.ui.model.AccessResponse
+import com.example.redditapp.ui.model.CommentModel
 import com.example.redditapp.ui.model.CommentsModel
+import com.example.redditapp.ui.model.MoreChildrenModel
 import com.example.redditapp.ui.model.SubredditPageResponse
 import com.example.redditapp.ui.model.SubredditsResponse
 import retrofit2.http.Field
@@ -32,6 +34,12 @@ interface RedditApiService {
 
     @GET
     suspend fun getComments(@Url url: String): List<CommentsModel>
+
+    @GET("api/morechildren/")
+    suspend fun getMoreChildren(
+        @Query("link_id") linkId: String,
+        @Query(value = "children", encoded = true) children: String
+    ): MoreChildrenModel
 
     @FormUrlEncoded
     @POST("https://www.reddit.com/api/v1/access_token/")

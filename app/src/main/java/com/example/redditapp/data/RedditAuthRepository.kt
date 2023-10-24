@@ -2,7 +2,9 @@ package com.example.redditapp.data
 
 import com.example.redditapp.network.RedditApiService
 import com.example.redditapp.ui.model.AccessResponse
+import com.example.redditapp.ui.model.CommentModel
 import com.example.redditapp.ui.model.CommentsModel
+import com.example.redditapp.ui.model.MoreChildrenModel
 import com.example.redditapp.ui.model.SubredditPageDataModel
 import com.example.redditapp.ui.model.SubredditPageResponse
 import com.example.redditapp.ui.model.SubredditsDataModel
@@ -15,6 +17,7 @@ interface RedditAuthRepository {
     suspend fun getSubredditPage(subreddit: String, after: String): SubredditPageDataModel
     suspend fun getAccessToken(code: String, authorization: String): AccessResponse
     suspend fun getComments(url: String): List<CommentsModel>
+    suspend fun getMoreChildren(linkId: String, children: String): List<CommentModel>
     suspend fun refreshAccessToken(authorization: String, refreshToken: String): AccessResponse
 }
 
@@ -48,6 +51,14 @@ class RedditAuthRepositoryImp @Inject constructor() :
 
     override suspend fun getComments(url: String): List<CommentsModel> {
         return redditApiService.getComments(url)
+    }
+
+    override suspend fun getMoreChildren(
+        linkId: String,
+        children: String
+    ): List<CommentModel> {
+        val response: MoreChildrenModel = redditApiService.getMoreChildren(linkId, children)
+        return response.jquery
     }
 
     override suspend fun refreshAccessToken(

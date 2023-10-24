@@ -2,6 +2,8 @@ package com.example.redditapp.ui.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonTransformingSerializer
@@ -33,6 +35,13 @@ data class CommentDataModel(
     val id: String,
     @SerialName("parent_id") val parentId: String? = null,
     var depth: Int? = null,
+    val children: List<String>? = null
+)
+
+@Serializable
+data class MoreChildrenModel(
+    @Serializable(with = MoreChildrenSerializer::class)
+    val jquery: List<CommentModel>
 )
 
 object CommentDataSerializer :
@@ -42,4 +51,17 @@ object CommentDataSerializer :
         JsonObject(element.jsonObject.filterNot { (k, v) ->
             k == "replies" && v !is JsonObject && v.jsonPrimitive.content == ""
         })
+}
+
+object MoreChildrenSerializer :
+    JsonTransformingSerializer<List<CommentModel>>(ListSerializer(CommentModel.serializer())) {
+    // filter out replies with empty strings
+    override fun transformDeserialize(element: JsonElement): JsonElement {
+        if (element is JsonArray) {
+            val data: JsonArray = element[10] as JsonArray
+            val payload: JsonArray = data[3] as JsonArray
+            return payload[0] as JsonArray
+        }
+        return element
+    }
 }
