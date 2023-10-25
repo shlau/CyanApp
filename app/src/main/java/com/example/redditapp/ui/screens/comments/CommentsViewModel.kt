@@ -88,13 +88,22 @@ class CommentsViewModel @Inject constructor(
                         getFlattenedComments(comments)
                     } else {
                         val postId: String? = loadNode.data.parentId
-                        if (postId != null) {
+                        if (postId != null && postId.split("_")[0] == "t3") {
                             val res: List<CommentModel> = authRepository.getMoreChildren(
                                 postId,
-                                loadNode.data.children!!.joinToString(",")
+                                // TODO: add option to load another 100, or request the rest of the comments in batches of 100
+                                loadNode.data.children!!.take(100)!!.joinToString(",")
                             )
-                            _uiState.update { currentState -> currentState.copy(comments = _uiState.value.comments + res) }
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    comments = _uiState.value.comments.dropLast(
+                                        1
+                                    ) + res
+                                )
+                            }
                             getFlattenedComments(res)
+                        } else {
+                            // TODO: handle invalid root comment
                         }
                     }
                     toggleExpandedComments(loadNode)

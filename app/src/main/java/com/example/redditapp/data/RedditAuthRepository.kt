@@ -5,6 +5,7 @@ import com.example.redditapp.ui.model.AccessResponse
 import com.example.redditapp.ui.model.CommentModel
 import com.example.redditapp.ui.model.CommentsModel
 import com.example.redditapp.ui.model.MoreChildrenModel
+import com.example.redditapp.ui.model.MoreChildrenResponse
 import com.example.redditapp.ui.model.SubredditPageDataModel
 import com.example.redditapp.ui.model.SubredditPageResponse
 import com.example.redditapp.ui.model.SubredditsDataModel
@@ -57,8 +58,8 @@ class RedditAuthRepositoryImp @Inject constructor() :
         linkId: String,
         children: String
     ): List<CommentModel> {
-        val response: MoreChildrenModel = redditApiService.getMoreChildren(linkId, children)
-        return response.jquery
+        val response: MoreChildrenResponse = redditApiService.getMoreChildren(linkId, children)
+        return response.json.data.things
     }
 
     override suspend fun refreshAccessToken(

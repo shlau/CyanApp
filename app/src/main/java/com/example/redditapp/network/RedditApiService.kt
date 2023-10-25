@@ -4,6 +4,7 @@ import com.example.redditapp.ui.model.AccessResponse
 import com.example.redditapp.ui.model.CommentModel
 import com.example.redditapp.ui.model.CommentsModel
 import com.example.redditapp.ui.model.MoreChildrenModel
+import com.example.redditapp.ui.model.MoreChildrenResponse
 import com.example.redditapp.ui.model.SubredditPageResponse
 import com.example.redditapp.ui.model.SubredditsResponse
 import retrofit2.http.Field
@@ -38,8 +39,9 @@ interface RedditApiService {
     @GET("api/morechildren/")
     suspend fun getMoreChildren(
         @Query("link_id") linkId: String,
-        @Query(value = "children", encoded = true) children: String
-    ): MoreChildrenModel
+        @Query(value = "children", encoded = true) children: String,
+        @Query("api_type") apiType: String = "json",
+    ): MoreChildrenResponse
 
     @FormUrlEncoded
     @POST("https://www.reddit.com/api/v1/access_token/")

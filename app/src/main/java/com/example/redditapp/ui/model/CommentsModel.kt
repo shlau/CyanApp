@@ -39,9 +39,14 @@ data class CommentDataModel(
 )
 
 @Serializable
-data class MoreChildrenModel(
-    @Serializable(with = MoreChildrenSerializer::class)
-    val jquery: List<CommentModel>
+data class MoreChildrenModel(val things: List<CommentModel>)
+
+@Serializable
+data class MoreChildrenJson(val data: MoreChildrenModel)
+
+@Serializable
+data class MoreChildrenResponse(
+    val json: MoreChildrenJson
 )
 
 object CommentDataSerializer :
@@ -51,17 +56,4 @@ object CommentDataSerializer :
         JsonObject(element.jsonObject.filterNot { (k, v) ->
             k == "replies" && v !is JsonObject && v.jsonPrimitive.content == ""
         })
-}
-
-object MoreChildrenSerializer :
-    JsonTransformingSerializer<List<CommentModel>>(ListSerializer(CommentModel.serializer())) {
-    // filter out replies with empty strings
-    override fun transformDeserialize(element: JsonElement): JsonElement {
-        if (element is JsonArray) {
-            val data: JsonArray = element[10] as JsonArray
-            val payload: JsonArray = data[3] as JsonArray
-            return payload[0] as JsonArray
-        }
-        return element
-    }
 }
