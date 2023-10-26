@@ -18,7 +18,7 @@ interface RedditAuthRepository {
     suspend fun getSubredditPage(subreddit: String, after: String): SubredditPageDataModel
     suspend fun getAccessToken(code: String, authorization: String): AccessResponse
     suspend fun getComments(url: String): List<CommentsModel>
-    suspend fun getMoreChildren(linkId: String, children: String): List<CommentModel>
+    suspend fun getMoreChildren(linkId: String, children: String, id: String): List<CommentModel>
     suspend fun refreshAccessToken(authorization: String, refreshToken: String): AccessResponse
 }
 
@@ -56,9 +56,11 @@ class RedditAuthRepositoryImp @Inject constructor() :
 
     override suspend fun getMoreChildren(
         linkId: String,
-        children: String
+        children: String,
+        id: String
     ): List<CommentModel> {
-        val response: MoreChildrenResponse = redditApiService.getMoreChildren(linkId, children)
+        val response: MoreChildrenResponse =
+            redditApiService.getMoreChildren(linkId, children, id = id)
         return response.json.data.things
     }
 

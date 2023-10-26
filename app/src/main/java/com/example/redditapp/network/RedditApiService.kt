@@ -41,6 +41,8 @@ interface RedditApiService {
         @Query("link_id") linkId: String,
         @Query(value = "children", encoded = true) children: String,
         @Query("api_type") apiType: String = "json",
+        @Query("id") id: String,
+        @Query("sort") sort: String = "top"
     ): MoreChildrenResponse
 
     @FormUrlEncoded

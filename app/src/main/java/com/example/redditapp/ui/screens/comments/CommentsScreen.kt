@@ -76,7 +76,13 @@ fun CommentsContainer(
     LazyColumn {
         commentNodes(
             null,
-            { node: CommentModel?, loadNode: CommentModel -> viewModel.loadMoreComments(node, loadNode) },
+            { node: CommentModel?, loadNode: CommentModel, idx: Int ->
+                viewModel.loadMoreComments(
+                    node,
+                    loadNode,
+                    idx
+                )
+            },
             comments,
             0,
             commentsUiState.value.commentColors,
@@ -87,14 +93,14 @@ fun CommentsContainer(
 
 fun LazyListScope.commentNodes(
     parentNode: CommentModel?,
-    loadMoreComments: (node: CommentModel?, loadNode: CommentModel) -> Unit,
+    loadMoreComments: (node: CommentModel?, loadNode: CommentModel, idx: Int) -> Unit,
     nodes: List<CommentModel>,
     depth: Int,
     commentColors: List<Color>,
     isExpanded: (node: CommentModel) -> Boolean,
     toggleExpanded: (node: CommentModel) -> Unit
 ) {
-    nodes.forEach { node ->
+    nodes.forEachIndexed { idx, node ->
         commentNode(
             parentNode,
             loadMoreComments,
@@ -102,19 +108,21 @@ fun LazyListScope.commentNodes(
             depth,
             commentColors,
             isExpanded,
-            toggleExpanded
+            toggleExpanded,
+            idx
         )
     }
 }
 
 fun LazyListScope.commentNode(
     parentNode: CommentModel?,
-    loadMoreComments: (node: CommentModel?, loadNode: CommentModel) -> Unit,
+    loadMoreComments: (node: CommentModel?, loadNode: CommentModel, idx: Int) -> Unit,
     node: CommentModel,
     depth: Int,
     commentColors: List<Color>,
     isExpanded: (node: CommentModel) -> Boolean,
-    toggleExpanded: (node: CommentModel) -> Unit
+    toggleExpanded: (node: CommentModel) -> Unit,
+    idx: Int
 ) {
     val commentData: CommentDataModel = node.data
     val kind: String = node.kind
@@ -149,10 +157,11 @@ fun LazyListScope.commentNode(
                     .padding(start = 10.dp)
                     .padding(start = (depth * 10).dp)
                     .clickable {
-                        loadMoreComments(parentNode,node)
+                        loadMoreComments(parentNode, node, idx)
                     }
             ) {
-                Text(text = "Load more...", color = Color.Blue)
+                val numReplies: Int = commentData.children!!.size
+                Text(text = "Load more... ($numReplies replies)", color = Color.Blue)
             }
         }
     }

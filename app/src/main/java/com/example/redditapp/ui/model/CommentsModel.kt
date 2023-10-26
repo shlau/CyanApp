@@ -35,7 +35,8 @@ data class CommentDataModel(
     val id: String,
     @SerialName("parent_id") val parentId: String? = null,
     var depth: Int? = null,
-    val children: List<String>? = null
+    val children: List<String>? = null,
+    val name: String? = null,
 )
 
 @Serializable

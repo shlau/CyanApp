@@ -71,39 +71,60 @@ class CommentsViewModel @Inject constructor(
         }
     }
 
-    fun loadMoreComments(commentNode: CommentModel?, loadNode: CommentModel) {
+    private suspend fun loadSubComments(commentNode: CommentModel) {
+        val parentId = commentNode?.data?.id
+        val url: String = ("$OAUTH_BASE_URL${_uiState.value.permalink}${parentId}")
+        val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
+        val comments: List<CommentModel> =
+            (commentsResponse[1].data.children)
+        val replies: CommentsModel? = comments[0].data.replies
+
+        commentNode.data = commentNode.data.copy(replies = replies)
+        getFlattenedComments(comments)
+    }
+
+    private suspend fun loadPostComments(postId: String, loadNode: CommentModel) {
+        val nextCommentBatch = loadNode.data.children!!.take(100)
+        val remainingComments = loadNode.data.children!!.drop(100)
+        val newLoadNodeData = loadNode.data.copy(children = remainingComments)
+        val newLoadNode = loadNode.copy(data = newLoadNodeData)
+        val res: List<CommentModel> = authRepository.getMoreChildren(
+            postId,
+            nextCommentBatch.joinToString(","),
+            loadNode.data.name!!
+        )
+        _uiState.update { currentState ->
+            currentState.copy(
+                comments = _uiState.value.comments.dropLast(
+                    1
+                ) + res + newLoadNode
+            )
+        }
+        getFlattenedComments(res)
+    }
+
+    fun loadMoreComments(commentNode: CommentModel?, loadNode: CommentModel, idx: Int) {
         var parentId: String? = null
         parentId = commentNode?.data?.id ?: loadNode.data.id
         if (parentId != null) {
             viewModelScope.launch {
                 try {
                     if (commentNode != null) {
-                        val url: String = ("$OAUTH_BASE_URL${_uiState.value.permalink}${parentId}")
-                        val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
-                        val comments: List<CommentModel> =
-                            (commentsResponse[1].data.children)
-                        val replies: CommentsModel? = comments[0].data.replies
-
-                        commentNode.data = commentNode.data.copy(replies = replies)
-                        getFlattenedComments(comments)
+                        loadSubComments(commentNode)
                     } else {
                         val postId: String? = loadNode.data.parentId
                         if (postId != null && postId.split("_")[0] == "t3") {
-                            val res: List<CommentModel> = authRepository.getMoreChildren(
-                                postId,
-                                // TODO: add option to load another 100, or request the rest of the comments in batches of 100
-                                loadNode.data.children!!.take(100)!!.joinToString(",")
-                            )
+                            loadPostComments(postId, loadNode)
+                        } else {
+                            val parentNode: CommentModel = _uiState.value.comments[idx - 1]
+                            loadSubComments(parentNode)
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    comments = _uiState.value.comments.dropLast(
-                                        1
-                                    ) + res
+                                    comments = _uiState.value.comments.filter {
+                                        it.data.id != loadNode.data.id
+                                    }
                                 )
                             }
-                            getFlattenedComments(res)
-                        } else {
-                            // TODO: handle invalid root comment
                         }
                     }
                     toggleExpandedComments(loadNode)
