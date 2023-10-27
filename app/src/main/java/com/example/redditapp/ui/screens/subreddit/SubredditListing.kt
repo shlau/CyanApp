@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -51,13 +52,17 @@ fun SubredditListing(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(
-            text = listing.title,
+        Column(
             modifier = Modifier
                 .padding(10.dp)
                 .weight(1.0f),
-            textAlign = TextAlign.Justify
-        )
+        ) {
+            Text(
+                text = listing.title,
+                textAlign = TextAlign.Justify
+            )
+            Text(text = "${listing.numComments} comments", color = Color.Blue)
+        }
         if (!listing.isSelf && listing.thumbnail != null && listing.thumbnail != "default") {
             AsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
@@ -83,12 +88,13 @@ fun listingPreview(
         thumbnail = "",
         title = "Palestinians tearing down Israeli fence which kept them inside",
         url = "test",
-        permalink = "testing perma"
+        permalink = "testing perma",
+        numComments = 55
     )
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White)
-    ) {
-    }
+    SubredditListing(
+        permalink = l.permalink,
+        url = l.url,
+        navToComments = { s: String, s2: String -> true },
+        listing = l
+    )
 }
