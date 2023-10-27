@@ -83,16 +83,29 @@ class CommentsViewModel @Inject constructor(
         getFlattenedComments(comments)
     }
 
+    private fun isPostChild(commentNode: CommentModel): Boolean {
+        return commentNode.data.parentId!!.split("_")[0] == "t3"
+    }
+
     private suspend fun loadPostComments(postId: String, loadNode: CommentModel) {
-        val nextCommentBatch = loadNode.data.children!!.take(100)
-        val remainingComments = loadNode.data.children!!.drop(100)
-        val newLoadNodeData = loadNode.data.copy(children = remainingComments)
-        val newLoadNode = loadNode.copy(data = newLoadNodeData)
-        val res: List<CommentModel> = authRepository.getMoreChildren(
+        val commentBatchSize = 100
+        val nextCommentBatch = loadNode.data.children!!.take(commentBatchSize)
+        var res: List<CommentModel> = authRepository.getMoreChildren(
             postId,
             nextCommentBatch.joinToString(","),
             loadNode.data.name!!
         )
+        val tail: CommentModel = res.last()
+        var numUnaccountedComments = 0
+        if (tail.kind == CommentKind.more.name && isPostChild(tail)) {
+            numUnaccountedComments = tail.data.children!!.size
+            res = res.dropLast(1)
+        }
+
+        val remainingComments =
+            loadNode.data.children!!.drop(commentBatchSize - numUnaccountedComments)
+        val newLoadNodeData = loadNode.data.copy(children = remainingComments)
+        val newLoadNode = loadNode.copy(data = newLoadNodeData)
         _uiState.update { currentState ->
             currentState.copy(
                 comments = _uiState.value.comments.dropLast(
@@ -113,7 +126,7 @@ class CommentsViewModel @Inject constructor(
                         loadSubComments(commentNode)
                     } else {
                         val postId: String? = loadNode.data.parentId
-                        if (postId != null && postId.split("_")[0] == "t3") {
+                        if (postId != null && isPostChild(loadNode)) {
                             loadPostComments(postId, loadNode)
                         } else {
                             val parentNode: CommentModel = _uiState.value.comments[idx - 1]
