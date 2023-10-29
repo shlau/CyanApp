@@ -1,7 +1,6 @@
 package com.example.redditapp.ui.screens.comments
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
@@ -20,7 +19,7 @@ import javax.inject.Inject
 class CommentsViewModel @Inject constructor(
     private val authRepository: RedditAuthRepositoryImp,
 ) : ViewModel() {
-    private val flattenedComments = mutableSetOf<String>()
+    private val flattenedCommentIds = mutableSetOf<String>()
     private val _uiState =
         MutableStateFlow(
             CommentsUiState(
@@ -60,10 +59,9 @@ class CommentsViewModel @Inject constructor(
             val originalPost: CommentModel = commentsResponse[0].data.children[0]
             val comments: List<CommentModel> =
                 (commentsResponse[1].data.children)
-            val expandedComments = getFlattenedComments(comments)
+            appendExpandedComments(comments)
             _uiState.update { currentState ->
                 currentState.copy(
-                    expandedComments = expandedComments,
                     comments = comments,
                     originalPost = originalPost
                 )
@@ -80,7 +78,7 @@ class CommentsViewModel @Inject constructor(
         val replies: CommentsModel? = comments[0].data.replies
 
         commentNode.data = commentNode.data.copy(replies = replies)
-        getFlattenedComments(comments)
+        appendExpandedComments(comments)
     }
 
     private fun isPostChild(commentNode: CommentModel): Boolean {
@@ -136,7 +134,7 @@ class CommentsViewModel @Inject constructor(
                 ) + postComments + newLoadNode
             )
         }
-        getFlattenedComments(postComments)
+        appendExpandedComments(postComments)
     }
 
     fun loadMoreComments(commentNode: CommentModel?, loadNode: CommentModel, idx: Int) {
@@ -156,9 +154,6 @@ class CommentsViewModel @Inject constructor(
                             loadSubComments(parentNode)
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    // TODO fix jumping issue caused by flattenedComments being out of sync
-                                    // with expandedComments from manually toggle
-                                    expandedComments = flattenedComments,
                                     comments = _uiState.value.comments.filter {
                                         it.data.id != loadNode.data.id
                                     }
@@ -174,20 +169,28 @@ class CommentsViewModel @Inject constructor(
         }
     }
 
-    private fun getFlattenedComments(
+    private fun getFlattenedCommentIds(
         comments: List<CommentModel>,
     ): Set<String> {
         comments.forEach {
             val id: String = it.data.id
-            flattenedComments.add(id)
+            flattenedCommentIds.add(id)
             val replies = it.data.replies
             if (replies != null) {
                 val commentChildren = replies.data.children
-                getFlattenedComments(commentChildren)
+                getFlattenedCommentIds(commentChildren)
             }
         }
 
-        return flattenedComments
+        return flattenedCommentIds
+    }
+
+    private fun appendExpandedComments(comments: List<CommentModel>) {
+        val newCommentIds = getFlattenedCommentIds(comments)
+        val expandedComments = _uiState.value.expandedComments union newCommentIds
+        _uiState.update { currentState -> currentState.copy(expandedComments = expandedComments) }
+        flattenedCommentIds.clear()
+
     }
 
     init {
