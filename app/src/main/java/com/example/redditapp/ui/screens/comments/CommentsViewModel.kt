@@ -87,6 +87,28 @@ class CommentsViewModel @Inject constructor(
         return commentNode.data.parentId!!.split("_")[0] == "t3"
     }
 
+    private fun getOrderedPostComments(res: List<CommentModel>): List<CommentModel> {
+        val subCommentMapping = mutableMapOf<String, CommentModel>()
+        res.forEach {
+            if (it.kind == CommentKind.more.name) {
+                val fullParentId: String = it.data.parentId!!
+                val parentId: String = fullParentId.split("_")[1]
+                subCommentMapping[parentId] = it
+            }
+        }
+        val rootComments: List<CommentModel> =
+            res.filter { it.kind != CommentKind.more.name }
+
+        val postComments: MutableList<CommentModel> = mutableListOf()
+        rootComments.forEach {
+            postComments.add(it)
+            if (subCommentMapping.contains(it.data.id)) {
+                postComments.add(subCommentMapping[it.data.id]!!)
+            }
+        }
+        return postComments
+    }
+
     private suspend fun loadPostComments(postId: String, loadNode: CommentModel) {
         val commentBatchSize = 100
         val nextCommentBatch = loadNode.data.children!!.take(commentBatchSize)
@@ -102,6 +124,7 @@ class CommentsViewModel @Inject constructor(
             res = res.dropLast(1)
         }
 
+        val postComments: List<CommentModel> = getOrderedPostComments(res)
         val remainingComments =
             loadNode.data.children!!.drop(commentBatchSize - numUnaccountedComments)
         val newLoadNodeData = loadNode.data.copy(children = remainingComments)
@@ -110,10 +133,10 @@ class CommentsViewModel @Inject constructor(
             currentState.copy(
                 comments = _uiState.value.comments.dropLast(
                     1
-                ) + res + newLoadNode
+                ) + postComments + newLoadNode
             )
         }
-        getFlattenedComments(res)
+        getFlattenedComments(postComments)
     }
 
     fun loadMoreComments(commentNode: CommentModel?, loadNode: CommentModel, idx: Int) {
@@ -133,6 +156,9 @@ class CommentsViewModel @Inject constructor(
                             loadSubComments(parentNode)
                             _uiState.update { currentState ->
                                 currentState.copy(
+                                    // TODO fix jumping issue caused by flattenedComments being out of sync
+                                    // with expandedComments from manually toggle
+                                    expandedComments = flattenedComments,
                                     comments = _uiState.value.comments.filter {
                                         it.data.id != loadNode.data.id
                                     }
