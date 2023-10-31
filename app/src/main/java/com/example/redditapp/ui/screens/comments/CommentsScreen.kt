@@ -1,6 +1,8 @@
 package com.example.redditapp.ui.screens.comments
 
+import android.text.Html
 import android.text.Spanned
+import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -127,10 +129,11 @@ fun LazyListScope.commentNode(
     val commentData: CommentDataModel = node.data
     val kind: String = node.kind
     item {
-        val bodyHtml: String? = commentData.body
+        val bodyHtml: String? = commentData.bodyHtml
         if (bodyHtml != null) {
+            val decodedComment = Html.fromHtml(bodyHtml, Html.FROM_HTML_MODE_LEGACY).toString()
             val commentBody: Spanned =
-                HtmlCompat.fromHtml(bodyHtml, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                HtmlCompat.fromHtml(decodedComment, HtmlCompat.FROM_HTML_MODE_COMPACT)
             Box(
                 modifier = Modifier
                     .border(width = 1.dp, color = Color.Black)
@@ -139,7 +142,11 @@ fun LazyListScope.commentNode(
                     .clickable { toggleExpanded(node) }
             ) {
                 AndroidView(
-                    factory = { it -> TextView(it) },
+                    factory = { it ->
+                        val tv = TextView(it)
+                        tv.movementMethod = LinkMovementMethod.getInstance()
+                        return@AndroidView tv
+                    },
                     update = { it -> it.text = commentBody },
                     modifier = Modifier
                         .border(
