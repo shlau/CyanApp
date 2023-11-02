@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,12 +44,19 @@ fun SubredditListing(
     navToComments: (String, String) -> Unit,
     listing: SubredditListingDataModel, modifier: Modifier = Modifier
 ) {
+    val localUriHandler = LocalUriHandler.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .border(width = 1.dp, color = Color.Black)
             .defaultMinSize(minHeight = 60.dp)
-            .clickable { navToComments(url, permalink) },
+            .clickable {
+                if (!listing.isSelf && listing.destUrl != null) {
+                    localUriHandler.openUri(listing.destUrl)
+                } else {
+                    navToComments(url, permalink)
+                }
+            },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -61,7 +69,11 @@ fun SubredditListing(
                 text = listing.title,
                 textAlign = TextAlign.Justify
             )
-            Text(text = "${listing.numComments} comments", color = Color.Blue)
+            Text(
+                text = "${listing.numComments} comments",
+                color = Color.Blue,
+                modifier = Modifier.clickable { navToComments(url, permalink) },
+            )
         }
         if (!listing.isSelf && listing.thumbnail != null && listing.thumbnail != "default") {
             AsyncImage(
@@ -89,7 +101,8 @@ fun listingPreview(
         title = "Palestinians tearing down Israeli fence which kept them inside",
         url = "test",
         permalink = "testing perma",
-        numComments = 55
+        numComments = 55,
+        destUrl = null
     )
     SubredditListing(
         permalink = l.permalink,
