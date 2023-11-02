@@ -15,7 +15,7 @@ data class CommentsUiState(
         Color.Magenta,
         Color.Blue,
         Color.Yellow,
-        Color.White
+        Color.DarkGray
     ),
     var permalink: String = ""
 )
