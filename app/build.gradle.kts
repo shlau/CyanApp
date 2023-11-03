@@ -90,6 +90,9 @@ dependencies {
     // Retrofit with Scalar Converter
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
 
+    implementation("androidx.media3:media3-exoplayer:1.1.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.1.1")
+    implementation("androidx.media3:media3-ui:1.1.1")
 
 
 // Kotlin serialization
