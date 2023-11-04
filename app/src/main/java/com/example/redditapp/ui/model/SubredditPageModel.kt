@@ -13,6 +13,20 @@ data class SubredditPageDataModel(val children: List<SubredditListingModel>, val
 data class SubredditListingModel(val data: SubredditListingDataModel)
 
 @Serializable
+data class RedditVideoModel(
+    val height: Int,
+    val width: Int,
+    @SerialName(value = "has_audio") val hasAudio: Boolean,
+    @SerialName(value = "is_gif") val isGif: Boolean,
+    @SerialName(value = "fallback_url") val fallbackUrl: String
+)
+
+@Serializable
+data class SecureMediaModel(
+    @SerialName(value = "reddit_video") val redditVideo: RedditVideoModel?
+)
+
+@Serializable
 data class SubredditListingDataModel(
     val title: String,
     var thumbnail: String?,
@@ -20,5 +34,6 @@ data class SubredditListingDataModel(
     val permalink: String,
     @SerialName(value = "url_overridden_by_dest") val destUrl: String?,
     @SerialName(value = "is_self") val isSelf: Boolean,
-    @SerialName(value = "num_comments") val numComments: Int
+    @SerialName(value = "num_comments") val numComments: Int,
+    @SerialName(value = "secure_media") val secureMedia: SecureMediaModel?
 )

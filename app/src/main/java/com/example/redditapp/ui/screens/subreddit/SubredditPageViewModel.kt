@@ -18,8 +18,37 @@ import javax.inject.Inject
 @HiltViewModel
 class SubredditPageViewModel @Inject constructor(private val redditAuthRepository: RedditAuthRepositoryImp) :
     ViewModel() {
-    private val _uiState = MutableStateFlow(SubredditPageUiState(url = null))
+    private val _uiState = MutableStateFlow(
+        SubredditPageUiState(
+            url = null,
+            mediaType = null,
+            audioUrl = null,
+            mediaUrl = null
+        )
+    )
     val uiState = _uiState.asStateFlow()
+
+    fun showMedia(audioUrl: String, mediaUrl: String, mediaType: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                audioUrl = audioUrl,
+                mediaUrl = mediaUrl,
+                mediaType = mediaType,
+                openMediaDialog = true
+            )
+        }
+    }
+
+    fun hideMedia() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                audioUrl = null,
+                mediaUrl = null,
+                mediaType = null,
+                openMediaDialog = false
+            )
+        }
+    }
 
     fun appendNextPage() {
         viewModelScope.launch {

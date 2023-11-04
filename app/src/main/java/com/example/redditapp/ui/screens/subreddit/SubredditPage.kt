@@ -33,6 +33,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.redditapp.R
 import com.example.redditapp.ui.model.SubredditListingDataModel
+import com.example.redditapp.ui.screens.media.viewer.MediaViewerScreen
 import com.example.redditapp.ui.screens.sidebar.NavDrawer
 import kotlinx.coroutines.launch
 
@@ -59,7 +60,14 @@ fun SubredditListings(
                 permalink = it.permalink,
                 url = it.url,
                 navToComments = navToComments,
-                listing = it
+                listing = it,
+                showMedia = { audioUrl: String, mediaUrl: String, mediaType: String ->
+                    viewModel.showMedia(
+                        audioUrl,
+                        mediaUrl,
+                        mediaType
+                    )
+                }
             )
         }
     }
@@ -95,8 +103,15 @@ fun SubredditPage(navToComments: (String, String) -> Unit, modifier: Modifier = 
             SubredditListings(
                 navToComments = navToComments,
                 innerPadding = innerPadding,
-                listings = subredditPageUiState.value.listings
+                listings = subredditPageUiState.value.listings,
             )
+            if (subredditPageUiState.value.openMediaDialog) {
+                MediaViewerScreen(
+                    onDismissRequest = { viewModel.hideMedia() },
+                    mediaUrl = subredditPageUiState.value.mediaUrl,
+                    audioUrl = subredditPageUiState.value.audioUrl
+                )
+            }
         }
     }
 }

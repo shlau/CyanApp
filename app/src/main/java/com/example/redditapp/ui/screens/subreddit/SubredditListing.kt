@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.redditapp.R
+import com.example.redditapp.ui.model.RedditVideoModel
 import com.example.redditapp.ui.model.SubredditListingModel
 import com.example.redditapp.ui.model.SubredditListingDataModel
 
@@ -42,7 +43,8 @@ fun SubredditListing(
     permalink: String,
     url: String,
     navToComments: (String, String) -> Unit,
-    listing: SubredditListingDataModel, modifier: Modifier = Modifier
+    listing: SubredditListingDataModel, modifier: Modifier = Modifier,
+    showMedia: (audioUrl: String, mediaUrl: String, mediaType: String) -> Unit
 ) {
     val localUriHandler = LocalUriHandler.current
     Row(
@@ -86,6 +88,14 @@ fun SubredditListing(
                 modifier = Modifier
                     .height(60.dp)
                     .width(60.dp)
+                    .clickable {
+                        val video: RedditVideoModel? = listing.secureMedia?.redditVideo
+                        if (video != null && video.hasAudio) {
+                            val baseUrl = video.fallbackUrl.split("_")[0]
+                            val audioUrl = "${baseUrl}_AUDIO_128.mp4"
+                            showMedia(audioUrl, video.fallbackUrl, "")
+                        }
+                    }
             )
         }
     }
@@ -95,19 +105,19 @@ fun SubredditListing(
 @Composable
 fun listingPreview(
 ) {
-    val l = SubredditListingDataModel(
-        isSelf = false,
-        thumbnail = "",
-        title = "Palestinians tearing down Israeli fence which kept them inside",
-        url = "test",
-        permalink = "testing perma",
-        numComments = 55,
-        destUrl = null
-    )
-    SubredditListing(
-        permalink = l.permalink,
-        url = l.url,
-        navToComments = { s: String, s2: String -> true },
-        listing = l
-    )
+//    val l = SubredditListingDataModel(
+//        isSelf = false,
+//        thumbnail = "",
+//        title = "Palestinians tearing down Israeli fence which kept them inside",
+//        url = "test",
+//        permalink = "testing perma",
+//        numComments = 55,
+//        destUrl = null
+//    )
+//    SubredditListing(
+//        permalink = l.permalink,
+//        url = l.url,
+//        navToComments = { s: String, s2: String -> true },
+//        listing = l
+//    )
 }

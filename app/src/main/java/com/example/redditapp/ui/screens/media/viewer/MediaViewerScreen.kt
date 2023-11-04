@@ -16,7 +16,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.media3.common.MediaItem.fromUri
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.exoplayer.source.MergingMediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 
@@ -24,7 +28,8 @@ import androidx.media3.ui.PlayerView
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 fun MediaViewerScreen(
     onDismissRequest: () -> Unit,
-    mediaUrl: String,
+    mediaUrl: String?,
+    audioUrl: String?,
     modifier: Modifier = Modifier
 ) {
     Dialog(
@@ -34,22 +39,33 @@ fun MediaViewerScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(400.dp)
         ) {
-            val context = LocalContext.current
-            val viewPlayer = ExoPlayer.Builder(context).build().apply {
-                setMediaItem(fromUri(mediaUrl))
-                playWhenReady = true
-                prepare()
-            }
-            AndroidView(
-                factory = {
-                    PlayerView(context).apply {
-                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                        player = viewPlayer
-                    }
+            if (mediaUrl != null) {
+                val context = LocalContext.current
+                val dataSourceFactory = DefaultHttpDataSource.Factory()
+                val videoSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(fromUri(mediaUrl))
+                var mediaSrc: MediaSource = videoSource
+                if (audioUrl != null) {
+                    val audioSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(fromUri(audioUrl))
+                    mediaSrc = MergingMediaSource(videoSource, audioSource)
                 }
-            )
+                val viewPlayer = ExoPlayer.Builder(context).build().apply {
+                    setMediaSource(mediaSrc)
+                    playWhenReady = true
+                    prepare()
+                }
+                AndroidView(
+                    factory = {
+                        PlayerView(context).apply {
+                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                            player = viewPlayer
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -63,7 +79,9 @@ fun MediaViewerScreenPreview() {
             .background(color = Color.Gray)
     ) {
         MediaViewerScreen(
-            {}, "https://v.redd.it/jk90e6z0yb1/DASH_1080.mp4?source=fallback"
+            {},
+            "https://v.redd.it/jk90e6z0yb1/DASH_1080.mp4?source=fallback",
+            "https://v.redd.it/jo2fyf21dpxb1/DASH_AUDIO_128.mp4"
         )
     }
 }
