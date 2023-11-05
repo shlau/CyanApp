@@ -24,8 +24,8 @@ import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
 import com.example.redditapp.ui.model.CommentDataModel
 import com.example.redditapp.ui.model.CommentModel
 
-enum class CommentKind {
-    more
+enum class CommentKind(val kind: String) {
+    More("more")
 }
 
 @Composable
@@ -157,7 +157,7 @@ fun LazyListScope.commentNode(
                 )
             }
         }
-        if (kind == CommentKind.more.name) {
+        if (kind == CommentKind.More.kind) {
             Box(
                 modifier = Modifier
                     .border(width = 1.dp, color = Color.Cyan)

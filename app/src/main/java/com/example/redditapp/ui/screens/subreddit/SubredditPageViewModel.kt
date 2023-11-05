@@ -5,15 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.RedditAuthRepositoryImp
-import com.example.redditapp.ui.model.SubredditListingModel
+import com.example.redditapp.ui.model.RedditVideoModel
 import com.example.redditapp.ui.model.SubredditListingDataModel
+import com.example.redditapp.ui.model.SubredditListingModel
 import com.example.redditapp.ui.model.SubredditPageDataModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.net.URL
+import java.util.Objects
 import javax.inject.Inject
+
 
 @HiltViewModel
 class SubredditPageViewModel @Inject constructor(private val redditAuthRepository: RedditAuthRepositoryImp) :
@@ -28,14 +32,65 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
     )
     val uiState = _uiState.asStateFlow()
 
-    fun showMedia(audioUrl: String, mediaUrl: String, mediaType: String) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                audioUrl = audioUrl,
-                mediaUrl = mediaUrl,
-                mediaType = mediaType,
-                openMediaDialog = true
-            )
+    private fun getFileExtension(url: URL): String? {
+        Objects.requireNonNull(url, "URL is null")
+        val file = url.file
+        if (file.contains(".")) {
+            val sub = file.substring(file.lastIndexOf('.') + 1)
+            if (sub.isEmpty()) {
+                return null
+            }
+            if (sub.contains("?")) {
+                return (sub.substring(0, sub.indexOf('?')))
+            }
+            if (sub.contains("#")) {
+                return (sub.substring(0, sub.indexOf('#')))
+            }
+            return sub
+        }
+        return null
+    }
+
+    private fun getMediaType(urlString: String): String? {
+        val url = URL(urlString)
+        val fileType = getFileExtension(url)
+        if (fileType != null) {
+            val videoTypes = listOf("mp4", "gifv")
+            val imageTypes = listOf("jpg", "png", "gif")
+            if (videoTypes.contains(fileType)) {
+                return "video"
+            }
+            if (imageTypes.contains("fileType")) {
+                return "image"
+            }
+        }
+        return null
+    }
+
+    fun showMedia(listing: SubredditListingDataModel) {
+        val video: RedditVideoModel? = listing.secureMedia?.redditVideo
+        if (video != null) {
+            val baseUrl = video.fallbackUrl.split("_")[0]
+            val audioUrl = "${baseUrl}_AUDIO_128.mp4"
+            _uiState.update { currentState ->
+                currentState.copy(
+                    audioUrl = audioUrl,
+                    mediaUrl = video.fallbackUrl,
+                    mediaType = "video",
+                    openMediaDialog = true
+                )
+            }
+        } else {
+            val mediaType = getMediaType(listing.url)
+            if (mediaType != null) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        mediaUrl = listing.url.replace("gifv", "mp4"),
+                        mediaType = mediaType,
+                        openMediaDialog = true
+                    )
+                }
+            }
         }
     }
 

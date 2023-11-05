@@ -61,11 +61,9 @@ fun SubredditListings(
                 url = it.url,
                 navToComments = navToComments,
                 listing = it,
-                showMedia = { audioUrl: String, mediaUrl: String, mediaType: String ->
+                showMedia = { listing: SubredditListingDataModel ->
                     viewModel.showMedia(
-                        audioUrl,
-                        mediaUrl,
-                        mediaType
+                        listing
                     )
                 }
             )
@@ -109,7 +107,8 @@ fun SubredditPage(navToComments: (String, String) -> Unit, modifier: Modifier = 
                 MediaViewerScreen(
                     onDismissRequest = { viewModel.hideMedia() },
                     mediaUrl = subredditPageUiState.value.mediaUrl,
-                    audioUrl = subredditPageUiState.value.audioUrl
+                    audioUrl = subredditPageUiState.value.audioUrl,
+                    mediaType = subredditPageUiState.value.mediaType
                 )
             }
         }

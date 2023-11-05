@@ -1,6 +1,8 @@
 package com.example.redditapp.ui.screens.subreddit
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,12 +33,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.GifDecoder
 import coil.request.ImageRequest
+import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.R
 import com.example.redditapp.ui.model.RedditVideoModel
 import com.example.redditapp.ui.model.SubredditListingModel
 import com.example.redditapp.ui.model.SubredditListingDataModel
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLConnection
 
 @Composable
 fun SubredditListing(
@@ -44,7 +53,7 @@ fun SubredditListing(
     url: String,
     navToComments: (String, String) -> Unit,
     listing: SubredditListingDataModel, modifier: Modifier = Modifier,
-    showMedia: (audioUrl: String, mediaUrl: String, mediaType: String) -> Unit
+    showMedia: (listing: SubredditListingDataModel) -> Unit
 ) {
     val localUriHandler = LocalUriHandler.current
     Row(
@@ -89,12 +98,7 @@ fun SubredditListing(
                     .height(60.dp)
                     .width(60.dp)
                     .clickable {
-                        val video: RedditVideoModel? = listing.secureMedia?.redditVideo
-                        if (video != null && video.hasAudio) {
-                            val baseUrl = video.fallbackUrl.split("_")[0]
-                            val audioUrl = "${baseUrl}_AUDIO_128.mp4"
-                            showMedia(audioUrl, video.fallbackUrl, "")
-                        }
+                        showMedia(listing)
                     }
             )
         }

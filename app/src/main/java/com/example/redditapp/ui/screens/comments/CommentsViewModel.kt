@@ -88,14 +88,14 @@ class CommentsViewModel @Inject constructor(
     private fun getOrderedPostComments(res: List<CommentModel>): List<CommentModel> {
         val subCommentMapping = mutableMapOf<String, CommentModel>()
         res.forEach {
-            if (it.kind == CommentKind.more.name) {
+            if (it.kind == CommentKind.More.kind) {
                 val fullParentId: String = it.data.parentId!!
                 val parentId: String = fullParentId.split("_")[1]
                 subCommentMapping[parentId] = it
             }
         }
         val rootComments: List<CommentModel> =
-            res.filter { it.kind != CommentKind.more.name }
+            res.filter { it.kind != CommentKind.More.kind }
 
         val postComments: MutableList<CommentModel> = mutableListOf()
         rootComments.forEach {
@@ -117,7 +117,7 @@ class CommentsViewModel @Inject constructor(
         )
         val tail: CommentModel = res.last()
         var numUnaccountedComments = 0
-        if (tail.kind == CommentKind.more.name && isPostChild(tail)) {
+        if (tail.kind == CommentKind.More.kind && isPostChild(tail)) {
             numUnaccountedComments = tail.data.children!!.size
             res = res.dropLast(1)
         }
