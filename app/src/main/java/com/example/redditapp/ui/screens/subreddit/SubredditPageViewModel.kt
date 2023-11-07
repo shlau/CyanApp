@@ -60,7 +60,7 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
             if (videoTypes.contains(fileType)) {
                 return "video"
             }
-            if (imageTypes.contains("fileType")) {
+            if (imageTypes.contains(fileType)) {
                 return "image"
             }
         }

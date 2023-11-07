@@ -58,7 +58,7 @@ fun MediaViewerScreen(
                     Image(
                         painter = rememberAsyncImagePainter(
                             ImageRequest.Builder(LocalContext.current)
-                                .data(data = "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmYzMGJsMGU3bGtrZXkzZ3dicGJzNTR0bDA3dW5xc215Mng2c3F5bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/T4EyE0lTC7KvvqZqQl/giphy.gif")
+                                .data(data = mediaUrl)
                                 .build(), imageLoader = imageLoader
                         ),
                         contentDescription = null,
