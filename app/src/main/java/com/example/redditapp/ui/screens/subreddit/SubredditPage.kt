@@ -108,7 +108,9 @@ fun SubredditPage(navToComments: (String, String) -> Unit, modifier: Modifier = 
                     onDismissRequest = { viewModel.hideMedia() },
                     mediaUrl = subredditPageUiState.value.mediaUrl,
                     audioUrl = subredditPageUiState.value.audioUrl,
-                    mediaType = subredditPageUiState.value.mediaType
+                    mediaType = subredditPageUiState.value.mediaType,
+                    height = subredditPageUiState.value.mediaHeight,
+                    width = subredditPageUiState.value.mediaWidth,
                 )
             }
         }

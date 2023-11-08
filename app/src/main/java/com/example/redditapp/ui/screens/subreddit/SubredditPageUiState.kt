@@ -12,5 +12,7 @@ data class SubredditPageUiState(
     val audioUrl: String?,
     val mediaUrl: String?,
     val mediaType: String?,
+    val mediaHeight: Int?,
+    val mediaWidth: Int?,
     val openMediaDialog: Boolean = false
 )

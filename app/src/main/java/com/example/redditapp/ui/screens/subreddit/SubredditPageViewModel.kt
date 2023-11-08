@@ -27,7 +27,9 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
             url = null,
             mediaType = null,
             audioUrl = null,
-            mediaUrl = null
+            mediaUrl = null,
+            mediaHeight = null,
+            mediaWidth = null,
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -71,13 +73,15 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
         val video: RedditVideoModel? = listing.secureMedia?.redditVideo
         if (video != null) {
             val baseUrl = video.fallbackUrl.split("_")[0]
-            val audioUrl = "${baseUrl}_AUDIO_128.mp4"
+            val audioUrl = if (video.hasAudio) "${baseUrl}_AUDIO_128.mp4" else null
             _uiState.update { currentState ->
                 currentState.copy(
                     audioUrl = audioUrl,
                     mediaUrl = video.fallbackUrl,
                     mediaType = "video",
-                    openMediaDialog = true
+                    openMediaDialog = true,
+                    mediaHeight = video.height,
+                    mediaWidth = video.width,
                 )
             }
         } else {

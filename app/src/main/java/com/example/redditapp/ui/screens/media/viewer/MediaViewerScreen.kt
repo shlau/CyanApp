@@ -39,6 +39,8 @@ fun MediaViewerScreen(
     mediaUrl: String?,
     audioUrl: String?,
     mediaType: String?,
+    height: Int?,
+    width: Int?,
     modifier: Modifier = Modifier
 ) {
     Dialog(
@@ -46,9 +48,7 @@ fun MediaViewerScreen(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
 
             if (mediaUrl != null) {
@@ -107,7 +107,9 @@ fun MediaViewerScreenPreview() {
             {},
             "https://v.redd.it/jk90e6z0yb1/DASH_1080.mp4?source=fallback",
             "https://v.redd.it/jo2fyf21dpxb1/DASH_AUDIO_128.mp4",
-            "video"
+            "video",
+            1920,
+            1080
         )
     }
 }
