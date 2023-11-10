@@ -14,5 +14,6 @@ data class SubredditPageUiState(
     val mediaType: String?,
     val mediaHeight: Int?,
     val mediaWidth: Int?,
+    val gallery: List<String>?,
     val openMediaDialog: Boolean = false
 )

@@ -111,6 +111,7 @@ fun SubredditPage(navToComments: (String, String) -> Unit, modifier: Modifier = 
                     mediaType = subredditPageUiState.value.mediaType,
                     height = subredditPageUiState.value.mediaHeight,
                     width = subredditPageUiState.value.mediaWidth,
+                    gallery = subredditPageUiState.value.gallery
                 )
             }
         }

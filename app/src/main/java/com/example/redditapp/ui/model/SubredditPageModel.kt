@@ -27,6 +27,12 @@ data class SecureMediaModel(
 )
 
 @Serializable
+data class GalleryItemModel(@SerialName(value = "media_id") val mediaId: String, val id: Long)
+
+@Serializable
+data class GalleryDataModel(val items: List<GalleryItemModel>)
+
+@Serializable
 data class SubredditListingDataModel(
     val title: String,
     var thumbnail: String?,
@@ -35,5 +41,6 @@ data class SubredditListingDataModel(
     @SerialName(value = "url_overridden_by_dest") val destUrl: String?,
     @SerialName(value = "is_self") val isSelf: Boolean,
     @SerialName(value = "num_comments") val numComments: Int,
-    @SerialName(value = "secure_media") val secureMedia: SecureMediaModel?
+    @SerialName(value = "secure_media") val secureMedia: SecureMediaModel?,
+    @SerialName(value = "gallery_data") val galleryData: GalleryDataModel?
 )

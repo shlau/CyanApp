@@ -30,6 +30,7 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
             mediaUrl = null,
             mediaHeight = null,
             mediaWidth = null,
+            gallery = null,
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -94,6 +95,18 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
                         openMediaDialog = true
                     )
                 }
+            } else if (listing.galleryData != null) {
+                val baseImageUrl = "https://i.redd.it/"
+                val gallery =
+                    listing.galleryData.items.map { "${baseImageUrl}${it.mediaId}.jpg" }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        gallery = gallery,
+                        mediaUrl = null,
+                        mediaType = "image",
+                        openMediaDialog = true,
+                    )
+                }
             }
         }
     }
@@ -101,6 +114,7 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
     fun hideMedia() {
         _uiState.update { currentState ->
             currentState.copy(
+                gallery = null,
                 audioUrl = null,
                 mediaUrl = null,
                 mediaType = null,
