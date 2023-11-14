@@ -3,11 +3,9 @@ package com.example.redditapp.ui.screens.sidebar
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.data.UserDataRepository
-import com.example.redditapp.ui.model.SubredditDataModel
 import com.example.redditapp.ui.model.SubredditsDataModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +41,7 @@ class NavDrawerViewModel @Inject constructor(
 
     fun logOut() {
         viewModelScope.launch {
-            userDataRepository.updateUserToken("")
+            userDataRepository.updateRedditUserToken("")
         }
     }
 

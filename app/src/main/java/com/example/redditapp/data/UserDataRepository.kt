@@ -11,58 +11,69 @@ import javax.inject.Inject
 
 class UserDataRepository @Inject constructor(private val userDataStore: DataStore<Preferences>) {
     object PreferenceKeys {
-        val CLIENT_ID = stringPreferencesKey("client_id")
-        val USER_TOKEN = stringPreferencesKey("user_token")
-        val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
-        val TOKEN_EXPIRATION = longPreferencesKey("token_expiration")
-        val TOKEN_TIMESTAMP = longPreferencesKey("token_timestamp")
+        val IMGUR_CLIENT_ID = stringPreferencesKey("imgur_client_id")
+        val REDDIT_CLIENT_ID = stringPreferencesKey("reddit_client_id")
+        val REDDIT_USER_TOKEN = stringPreferencesKey("reddit_user_token")
+        val REDDIT_REFRESH_TOKEN = stringPreferencesKey("reddit_refresh_token")
+        val REDDIT_TOKEN_EXPIRATION = longPreferencesKey("reddit_token_expiration")
+        val REDDIT_TOKEN_TIMESTAMP = longPreferencesKey("reddit_token_timestamp")
     }
 
-    val userTokenFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[PreferenceKeys.USER_TOKEN] ?: ""
+    val redditUserTokenFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.REDDIT_USER_TOKEN] ?: ""
     }
-    val refreshTokenFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[PreferenceKeys.REFRESH_TOKEN] ?: ""
+    val refreshRedditTokenFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.REDDIT_REFRESH_TOKEN] ?: ""
     }
-    val tokenExpirationFlow: Flow<Long> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[PreferenceKeys.TOKEN_EXPIRATION] ?: -1
-    }
-
-    val tokenTimestampFlow: Flow<Long> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[PreferenceKeys.TOKEN_TIMESTAMP] ?: -1
+    val redditTokenExpirationFlow: Flow<Long> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.REDDIT_TOKEN_EXPIRATION] ?: -1
     }
 
-
-    val clientIdFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
-        currentPreferences[PreferenceKeys.CLIENT_ID] ?: ""
+    val redditTokenTimestampFlow: Flow<Long> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.REDDIT_TOKEN_TIMESTAMP] ?: -1
     }
 
-    suspend fun updateUserToken(token: String) {
+    val redditClientIdFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.REDDIT_CLIENT_ID] ?: ""
+    }
+
+    val imgurClientIdFlow: Flow<String> = userDataStore.data.map { currentPreferences ->
+        currentPreferences[PreferenceKeys.IMGUR_CLIENT_ID] ?: ""
+    }
+
+    suspend fun updateRedditUserToken(token: String) {
         userDataStore.edit { currentSettings ->
-            currentSettings[PreferenceKeys.USER_TOKEN] = token
+            currentSettings[PreferenceKeys.REDDIT_USER_TOKEN] = token
         }
     }
 
-    suspend fun updateRefreshToken(token: String) {
+    suspend fun updateRedditRefreshToken(token: String) {
         userDataStore.edit { currentSettings ->
-            currentSettings[PreferenceKeys.REFRESH_TOKEN] = token
+            currentSettings[PreferenceKeys.REDDIT_REFRESH_TOKEN] = token
         }
     }
 
-    suspend fun updateTokenExpiration(expiration: Long) {
+    suspend fun updateRedditTokenExpiration(expiration: Long) {
         userDataStore.edit { currentSettings ->
-            currentSettings[PreferenceKeys.TOKEN_EXPIRATION] = expiration
+            currentSettings[PreferenceKeys.REDDIT_TOKEN_EXPIRATION] = expiration
         }
     }
 
-    suspend fun updateTokenTimestamp(timestamp: Long) {
+    suspend fun updateRedditTokenTimestamp(timestamp: Long) {
         userDataStore.edit { currentSettings ->
-            currentSettings[PreferenceKeys.TOKEN_TIMESTAMP] = timestamp
+            currentSettings[PreferenceKeys.REDDIT_TOKEN_TIMESTAMP] = timestamp
         }
     }
-    suspend fun updateClientId(clientId: String) {
+
+    suspend fun updateRedditClientId(clientId: String) {
         userDataStore.edit { currentSettings ->
-            currentSettings[PreferenceKeys.CLIENT_ID] = clientId
+            currentSettings[PreferenceKeys.REDDIT_CLIENT_ID] = clientId
+        }
+    }
+
+    suspend fun updateImgurClientId(clientId: String) {
+        userDataStore.edit { currentSettings ->
+            currentSettings[PreferenceKeys.IMGUR_CLIENT_ID] = clientId
         }
     }
 
@@ -70,18 +81,21 @@ class UserDataRepository @Inject constructor(private val userDataStore: DataStor
         userDataStore.edit { it.clear() }
     }
 
-    fun getToken() =
-        userDataStore.data.map { it[PreferenceKeys.USER_TOKEN] }
+    fun getRedditToken() =
+        userDataStore.data.map { it[PreferenceKeys.REDDIT_USER_TOKEN] }
 
-    fun getRefreshToken() =
-        userDataStore.data.map { it[PreferenceKeys.REFRESH_TOKEN] }
+    fun getRedditRefreshToken() =
+        userDataStore.data.map { it[PreferenceKeys.REDDIT_REFRESH_TOKEN] }
 
-    fun getTokenExpiration() =
-        userDataStore.data.map { it[PreferenceKeys.TOKEN_EXPIRATION] }
+    fun getRedditTokenExpiration() =
+        userDataStore.data.map { it[PreferenceKeys.REDDIT_TOKEN_EXPIRATION] }
 
-    fun getTokenTimestamp() =
-        userDataStore.data.map { it[PreferenceKeys.TOKEN_TIMESTAMP] }
+    fun getRedditTokenTimestamp() =
+        userDataStore.data.map { it[PreferenceKeys.REDDIT_TOKEN_TIMESTAMP] }
 
-    fun getClientId() =
-        userDataStore.data.map { it[PreferenceKeys.CLIENT_ID] }
+    fun getRedditClientId() =
+        userDataStore.data.map { it[PreferenceKeys.REDDIT_CLIENT_ID] }
+
+    fun getImgurClientId() =
+        userDataStore.data.map { it[PreferenceKeys.IMGUR_CLIENT_ID] }
 }

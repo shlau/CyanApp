@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -17,13 +16,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.redditapp.Constants.Companion.REDDIT_API
-import com.example.redditapp.ui.screens.auth.RedditAuthScreen
+import com.example.redditapp.ui.screens.auth.imgur.ImgurAuthScreen
+import com.example.redditapp.ui.screens.auth.reddit.RedditAuthScreen
 import com.example.redditapp.ui.screens.comments.CommentsScreen
 import com.example.redditapp.ui.screens.comments.CommentsViewModel
 import com.example.redditapp.ui.screens.subreddit.SubredditPage
 
 enum class NavRoutes {
-    AUTH,
+    IMGUR_AUTH,
+    REDDIT_AUTH,
     LOGIN,
     COMMENTS,
     HOME
@@ -35,6 +36,7 @@ fun RedditAppScreen(
     modifier: Modifier = Modifier
 ) {
     val viewModel: RedditAppViewModel = viewModel()
+    val imgurClientId = viewModel.imgurClientIdFlow.collectAsStateWithLifecycle(initialValue = "")
     val userToken = viewModel.userTokenFlow.collectAsStateWithLifecycle(initialValue = "")
     val tokenExpirationFlow =
         viewModel.tokenExpirationFlow.collectAsStateWithLifecycle(initialValue = -1)
@@ -43,7 +45,7 @@ fun RedditAppScreen(
     val redditAppUiState = viewModel.uiState.collectAsState()
     val commentsViewModel: CommentsViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = NavRoutes.AUTH.name) {
+    NavHost(navController = navController, startDestination = NavRoutes.REDDIT_AUTH.name) {
         fun navToComments(url: String, permalink: String) {
             navController.navigate("${NavRoutes.COMMENTS.name}?url=$url&permalink=$permalink")
         }
@@ -67,7 +69,7 @@ fun RedditAppScreen(
                 )
             })
         }
-        composable(route = NavRoutes.AUTH.name) {
+        composable(route = NavRoutes.REDDIT_AUTH.name) {
             Log.d(REDDIT_API, userToken.value)
             if (viewModel.isTokenExpired(tokenExpirationFlow.value, tokenTimestampFlow.value)) {
                 LaunchedEffect(Unit) {
@@ -96,12 +98,16 @@ fun RedditAppScreen(
             })
         ) { navBackStackEntry ->
             if (userToken.value != "") {
-                SubredditPage(navToComments = { url: String, permalink: String ->
-                    navToComments(
-                        url,
-                        permalink
-                    )
-                })
+                if (imgurClientId.value == "") {
+                    ImgurAuthScreen()
+                } else {
+                    SubredditPage(navToComments = { url: String, permalink: String ->
+                        navToComments(
+                            url,
+                            permalink
+                        )
+                    })
+                }
             } else {
                 val queryParamString = navBackStackEntry.arguments?.getString("params")
                 val paramMapping = viewModel.getParamMapping(queryParamString ?: "")

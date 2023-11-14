@@ -1,4 +1,4 @@
-package com.example.redditapp.ui.screens.auth
+package com.example.redditapp.ui.screens.auth.reddit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +49,7 @@ fun RedditAuthScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
         Button(
-            onClick = { viewModel.openRedditLogin(uriHandler) },
+            onClick = { viewModel.openLogin(uriHandler) },
             enabled = authUiState.apiKey !== "",
             modifier = Modifier
                 .fillMaxWidth()

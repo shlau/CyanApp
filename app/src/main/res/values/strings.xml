@@ -10,4 +10,5 @@
     <string name="login">login</string>
     <string name="home">home</string>
     <string name="comments">comments</string>
+    <string name="enter_your_imgur_api_key">Enter your Imgur api key</string>
 </resources>

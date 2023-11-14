@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.redditapp.ui.screens.RedditAppScreen
-import com.example.redditapp.ui.screens.auth.RedditAuthScreen
+import com.example.redditapp.ui.screens.auth.reddit.RedditAuthScreen
 import com.example.redditapp.ui.theme.RedditAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 

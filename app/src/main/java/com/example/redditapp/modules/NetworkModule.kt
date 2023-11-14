@@ -1,7 +1,5 @@
 package com.example.redditapp.modules
 
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
 import com.example.redditapp.data.UserDataRepository
 import com.example.redditapp.network.RedditApiService
@@ -9,7 +7,6 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -18,9 +15,7 @@ import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
 
 private val json = Json {
     ignoreUnknownKeys = true
@@ -34,7 +29,7 @@ object NetworkModule {
         Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val token = runBlocking {
-                userDataRepository.getToken().first()
+                userDataRepository.getRedditToken().first()
             }
             var request = chain.request()
             if(request.url.encodedPath != "/api/v1/access_token/") {
