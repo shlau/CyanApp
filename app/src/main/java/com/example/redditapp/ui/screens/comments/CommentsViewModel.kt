@@ -3,7 +3,7 @@ package com.example.redditapp.ui.screens.comments
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
+import com.example.redditapp.Constants.Companion.REDDIT_OAUTH_BASE_URL
 import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.ui.model.CommentModel
@@ -71,7 +71,7 @@ class CommentsViewModel @Inject constructor(
 
     private suspend fun loadSubComments(commentNode: CommentModel) {
         val parentId = commentNode?.data?.id
-        val url: String = ("$OAUTH_BASE_URL${_uiState.value.permalink}${parentId}")
+        val url: String = ("$REDDIT_OAUTH_BASE_URL${_uiState.value.permalink}${parentId}")
         val commentsResponse: List<CommentsModel> = authRepository.getComments(url)
         val comments: List<CommentModel> =
             (commentsResponse[1].data.children)

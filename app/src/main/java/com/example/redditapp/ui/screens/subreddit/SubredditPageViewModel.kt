@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.redditapp.Constants.Companion.REDDIT_API
+import com.example.redditapp.data.ImgurAuthRepositoryImp
 import com.example.redditapp.data.RedditAuthRepositoryImp
 import com.example.redditapp.ui.model.RedditVideoModel
 import com.example.redditapp.ui.model.SubredditListingDataModel
@@ -20,7 +21,10 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class SubredditPageViewModel @Inject constructor(private val redditAuthRepository: RedditAuthRepositoryImp) :
+class SubredditPageViewModel @Inject constructor(
+    private val redditAuthRepository: RedditAuthRepositoryImp,
+    private val imgurAuthRepository: ImgurAuthRepositoryImp
+) :
     ViewModel() {
     private val _uiState = MutableStateFlow(
         SubredditPageUiState(
@@ -106,6 +110,14 @@ class SubredditPageViewModel @Inject constructor(private val redditAuthRepositor
                         mediaType = "image",
                         openMediaDialog = true,
                     )
+                }
+            } else if (listing.url.contains("imgur.com")) {
+                viewModelScope.launch {
+                    try {
+                        // TODO
+                    } catch (e: Exception) {
+                        Log.d(REDDIT_API, e.toString())
+                    }
                 }
             }
         }

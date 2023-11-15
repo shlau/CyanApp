@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
-import com.example.redditapp.Constants.Companion.OAUTH_BASE_URL
+import com.example.redditapp.Constants.Companion.REDDIT_OAUTH_BASE_URL
 import com.example.redditapp.ui.model.CommentDataModel
 import com.example.redditapp.ui.model.CommentModel
 
@@ -39,7 +39,7 @@ fun CommentsScreen(
     val originalPostData = commentsUiState.value.originalPost?.data
     LaunchedEffect(Unit) {
         if (commentsUiState.value.permalink != permalink) {
-            viewModel.getComments("$OAUTH_BASE_URL$permalink.json")
+            viewModel.getComments("$REDDIT_OAUTH_BASE_URL$permalink.json")
             viewModel.updatePermalink(permalink)
         }
     }
