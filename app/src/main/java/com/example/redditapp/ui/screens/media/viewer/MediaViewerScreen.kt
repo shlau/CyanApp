@@ -111,15 +111,6 @@ fun MediaViewerScreen(
                 val numItems = gallery.size
                 var currentItemIdx by remember { mutableIntStateOf(0) }
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            ImageRequest.Builder(LocalContext.current)
-                                .data(data = gallery[currentItemIdx])
-                                .build(), imageLoader = imageLoader
-                        ),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -128,16 +119,28 @@ fun MediaViewerScreen(
                             imageVector = Icons.Rounded.ChevronLeft,
                             contentDescription = null,
                             modifier = Modifier.clickable {
-                                currentItemIdx = (currentItemIdx + 1).mod(numItems)
+                                currentItemIdx = (currentItemIdx - 1).mod(numItems)
                             })
                         Text(text = "${currentItemIdx + 1}/${numItems}")
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
                             contentDescription = null,
                             modifier = Modifier.clickable {
-                                currentItemIdx = (currentItemIdx - 1).mod(numItems)
+                                currentItemIdx = (currentItemIdx + 1).mod(numItems)
                             })
                     }
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(data = gallery[currentItemIdx])
+                                .build(), imageLoader = imageLoader
+                        ),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp)
+                    )
                 }
             }
         }

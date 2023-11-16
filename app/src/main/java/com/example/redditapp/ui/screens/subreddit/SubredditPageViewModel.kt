@@ -112,12 +112,28 @@ class SubredditPageViewModel @Inject constructor(
                     )
                 }
             } else if (listing.url.contains("imgur.com")) {
-                viewModelScope.launch {
-                    try {
-                        // TODO
-                    } catch (e: Exception) {
-                        Log.d(REDDIT_API, e.toString())
+                val url = URL(listing.url)
+                val albumUrlRegex = Regex("/a/([a-zA-Z]+)$")
+                val match = albumUrlRegex.find(url.file)
+                if (match != null) {
+                    val (albumId) = match.destructured
+                    viewModelScope.launch {
+                        try {
+                            val images = imgurAuthRepository.getAlbumImages(albumId)
+                            val gallery = images.map { it.link }
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    gallery = gallery,
+                                    mediaUrl = null,
+                                    mediaType = "image",
+                                    openMediaDialog = true,
+                                )
+                            }
+                        } catch (e: Exception) {
+                            Log.d(REDDIT_API, e.toString())
+                        }
                     }
+
                 }
             }
         }

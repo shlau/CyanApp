@@ -50,7 +50,7 @@ object NetworkModule {
             }
             var request = chain.request()
             request =
-                chain.request().newBuilder().addHeader("Authorization", "$clientId" ?: "").build()
+                chain.request().newBuilder().addHeader("Authorization", "Client-ID $clientId" ?: "").build()
             return chain.proceed(request)
         }
     }

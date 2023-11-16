@@ -15,7 +15,7 @@ class ImgurAuthRepositoryImp @Inject constructor() : ImgurAuthRepository {
     @Inject
     lateinit var imgurApiService: ImgurApiService
     override suspend fun getAlbumImages(id: String): List<ImageModel> {
-        return imgurApiService.getAlbumImages(id)
+        return imgurApiService.getAlbumImages(id).data
     }
 
     override suspend fun getImage(id: String): ImageModel {
