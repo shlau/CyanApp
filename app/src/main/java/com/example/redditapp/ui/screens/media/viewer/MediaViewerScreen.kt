@@ -76,7 +76,7 @@ fun MediaViewerScreen(
                                 .build(), imageLoader = imageLoader
                         ),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier.clickable {
                             onDismissRequest()
                         }
