@@ -77,6 +77,9 @@ fun MediaViewerScreen(
                         ),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
+                        modifier = Modifier.clickable {
+                            onDismissRequest()
+                        }
                     )
                 }
                 if (mediaType == "video") {

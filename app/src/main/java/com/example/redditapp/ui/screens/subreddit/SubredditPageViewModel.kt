@@ -63,7 +63,7 @@ class SubredditPageViewModel @Inject constructor(
         val fileType = getFileExtension(url)
         if (fileType != null) {
             val videoTypes = listOf("mp4", "gifv")
-            val imageTypes = listOf("jpg", "png", "gif")
+            val imageTypes = listOf("jpg", "jpeg", "png", "gif")
             if (videoTypes.contains(fileType)) {
                 return "video"
             }
