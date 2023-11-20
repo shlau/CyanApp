@@ -91,7 +91,7 @@ class SubredditPageViewModel @Inject constructor(
             }
         } else {
             val mediaType = getMediaType(listing.url)
-            if (false && mediaType != null) {
+            if (mediaType != null) {
                 _uiState.update { currentState ->
                     currentState.copy(
                         mediaUrl = listing.url.replace("gifv", "mp4"),
@@ -99,7 +99,7 @@ class SubredditPageViewModel @Inject constructor(
                         openMediaDialog = true
                     )
                 }
-            } else if (false && listing.galleryData != null) {
+            } else if (listing.galleryData != null) {
                 val baseImageUrl = "https://i.redd.it/"
                 val gallery =
                     listing.galleryData.items.map { "${baseImageUrl}${it.mediaId}.jpg" }
