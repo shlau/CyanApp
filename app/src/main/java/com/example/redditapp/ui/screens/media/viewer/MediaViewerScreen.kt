@@ -1,5 +1,8 @@
 package com.example.redditapp.ui.screens.media.viewer
 
+import android.util.Log
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +22,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +35,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.media3.common.MediaItem.fromUri
+import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MediaSource
@@ -40,6 +47,7 @@ import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
+import com.example.redditapp.Constants.Companion.REDDIT_API
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -60,7 +68,8 @@ fun MediaViewerScreen(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
         ) {
 
             if (mediaUrl != null) {
@@ -75,9 +84,11 @@ fun MediaViewerScreen(
                         ),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.clickable {
-                            onDismissRequest()
-                        }
+                        modifier = Modifier
+                            .background(color = Color.Black)
+                            .clickable {
+                                onDismissRequest()
+                            }
                     )
                 }
                 if (mediaType == "video") {
@@ -91,19 +102,58 @@ fun MediaViewerScreen(
                             .createMediaSource(fromUri(audioUrl))
                         mediaSrc = MergingMediaSource(videoSource, audioSource)
                     }
-                    val viewPlayer = ExoPlayer.Builder(context).build().apply {
-                        setMediaSource(mediaSrc)
-                        playWhenReady = true
-                        prepare()
+                    val viewPlayer = remember {
+                        ExoPlayer.Builder(context).build().apply {
+                            setMediaSource(mediaSrc)
+                            prepare()
+                            playWhenReady = false
+                        }
                     }
-                    AndroidView(
-                        factory = {
-                            PlayerView(context).apply {
-                                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                                player = viewPlayer
+
+                    val videoIsPlaying = remember{mutableStateOf(false)}
+
+                    if (mediaSrc != null) {
+                        DisposableEffect(key1 = Unit) {
+                            val listener = object : Player.Listener {
+                                //                                override fun onIsPlayingChanged(isPlaying: Boolean) {
+//                                    super.onIsPlayingChanged(isPlaying)
+//                                    if(isPlaying) {
+//                                        viewPlayer.pause()
+//                                    }
+//                                    Log.d(REDDIT_API, "isplaying changed")
+//                                }
+                                override fun onPlaybackStateChanged(playbackState: Int) {
+//                                    super.onPlaybackStateChanged(playbackState)
+                                    if (playbackState == Player.STATE_READY && !videoIsPlaying.value) {
+                                        Log.d(REDDIT_API, "isplaying changed $playbackState")
+                                        viewPlayer.pause()
+                                        viewPlayer.seekTo(0)
+                                        viewPlayer.play()
+                                        videoIsPlaying.value = true
+                                    }
+                                }
+                            }
+                            viewPlayer.addListener(listener)
+                            onDispose {
+                                viewPlayer.removeListener(listener)
+                                viewPlayer.release()
                             }
                         }
-                    )
+                        AndroidView(
+                            factory = {
+                                PlayerView(context).apply {
+                                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                                    player = viewPlayer
+                                    layoutParams =
+                                        FrameLayout.LayoutParams(
+                                            ViewGroup.LayoutParams.MATCH_PARENT,
+                                            ViewGroup.LayoutParams.MATCH_PARENT
+                                        )
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
             if (gallery != null) {
@@ -148,6 +198,7 @@ fun MediaViewerScreen(
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxSize()
+                                .background(color = Color.Black)
                                 .clickable { onDismissRequest() }
                         )
                     }
