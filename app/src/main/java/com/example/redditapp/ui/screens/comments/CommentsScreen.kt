@@ -46,7 +46,12 @@ fun CommentsScreen(
     if (originalPostData != null) {
         Column {
             Column(modifier = Modifier.padding(10.dp)) {
-                Text(text = originalPostData.title ?: "")
+                val title =
+                    HtmlCompat.fromHtml(
+                        originalPostData.title ?: "",
+                        HtmlCompat.FROM_HTML_MODE_COMPACT
+                    ).toString()
+                Text(text = title)
                 val selfText: String? = originalPostData.selfText
                 if (selfText != null) {
                     val postBody: Spanned =

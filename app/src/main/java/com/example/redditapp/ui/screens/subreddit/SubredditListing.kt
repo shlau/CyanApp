@@ -1,5 +1,6 @@
 package com.example.redditapp.ui.screens.subreddit
 
+import android.text.Html
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -56,6 +57,7 @@ fun SubredditListing(
     showMedia: (listing: SubredditListingDataModel) -> Unit
 ) {
     val localUriHandler = LocalUriHandler.current
+    val title = Html.fromHtml(listing.title, Html.FROM_HTML_MODE_LEGACY).toString()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,7 +79,7 @@ fun SubredditListing(
                 .weight(1.0f),
         ) {
             Text(
-                text = listing.title,
+                text = title,
                 textAlign = TextAlign.Justify
             )
             Text(
