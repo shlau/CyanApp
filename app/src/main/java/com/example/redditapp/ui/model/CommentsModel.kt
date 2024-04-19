@@ -31,7 +31,7 @@ data class CommentDataModel(
     @SerialName("body_html") val bodyHtml: String? = null,
     val ups: Int? = null,
     val title: String? = null,
-    @SerialName("self_text") val selfText: String? = null,
+    @SerialName("selftext") val selfText: String? = null,
     val id: String,
     @SerialName("parent_id") val parentId: String? = null,
     var depth: Int? = null,

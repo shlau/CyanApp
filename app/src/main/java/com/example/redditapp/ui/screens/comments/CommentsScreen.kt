@@ -17,10 +17,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import com.example.redditapp.Constants.Companion.REDDIT_OAUTH_BASE_URL
+import com.example.redditapp.R
 import com.example.redditapp.ui.model.CommentDataModel
 import com.example.redditapp.ui.model.CommentModel
 
@@ -173,7 +175,7 @@ fun LazyListScope.commentNode(
                     }
             ) {
                 val numReplies: Int = commentData.children!!.size
-                Text(text = "Load more... ($numReplies replies)", color = Color.Blue)
+                Text(text = stringResource(R.string.load_more_replies, numReplies))
             }
         }
     }

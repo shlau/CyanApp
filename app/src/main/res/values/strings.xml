@@ -11,4 +11,6 @@
     <string name="home">home</string>
     <string name="comments">comments</string>
     <string name="enter_your_imgur_api_key">Enter your Imgur api key</string>
+    <string name="load_more_replies">Load more... (%1$d)</string>
+    Text(text = "Load more... ($numReplies replies)", color = Color.Blue)
 </resources>
