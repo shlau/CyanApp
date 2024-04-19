@@ -37,6 +37,8 @@ data class CommentDataModel(
     var depth: Int? = null,
     val children: List<String>? = null,
     val name: String? = null,
+    val thumbnail: String? = null,
+    @SerialName(value = "url_overridden_by_dest") val destUrl: String?,
 )
 
 @Serializable
