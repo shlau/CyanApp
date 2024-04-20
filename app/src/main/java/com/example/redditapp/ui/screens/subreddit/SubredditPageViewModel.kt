@@ -6,10 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.redditapp.Constants.Companion.REDDIT_API
 import com.example.redditapp.data.ImgurAuthRepositoryImp
 import com.example.redditapp.data.RedditAuthRepositoryImp
+import com.example.redditapp.ui.model.GalleryDataModel
 import com.example.redditapp.ui.model.RedditVideoModel
 import com.example.redditapp.ui.model.SubredditListingDataModel
 import com.example.redditapp.ui.model.SubredditListingModel
 import com.example.redditapp.ui.model.SubredditPageDataModel
+import com.example.redditapp.ui.screens.media.viewer.MediaTypes
+import com.example.redditapp.ui.screens.media.viewer.MediaViewerModel
+import com.example.redditapp.util.Util.getMediaData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,101 +43,26 @@ class SubredditPageViewModel @Inject constructor(
     )
     val uiState = _uiState.asStateFlow()
 
-    private fun getFileExtension(url: URL): String? {
-        Objects.requireNonNull(url, "URL is null")
-        val file = url.file
-        if (file.contains(".")) {
-            val sub = file.substring(file.lastIndexOf('.') + 1)
-            if (sub.isEmpty()) {
-                return null
-            }
-            if (sub.contains("?")) {
-                return (sub.substring(0, sub.indexOf('?')))
-            }
-            if (sub.contains("#")) {
-                return (sub.substring(0, sub.indexOf('#')))
-            }
-            return sub
-        }
-        return null
-    }
-
-    private fun getMediaType(urlString: String): String? {
-        val url = URL(urlString)
-        val fileType = getFileExtension(url)
-        if (fileType != null) {
-            val videoTypes = listOf("mp4", "gifv")
-            val imageTypes = listOf("jpg", "jpeg", "png", "gif")
-            if (videoTypes.contains(fileType)) {
-                return "video"
-            }
-            if (imageTypes.contains(fileType)) {
-                return "image"
-            }
-        }
-        return null
-    }
-
     fun showMedia(listing: SubredditListingDataModel) {
-        val video: RedditVideoModel? = listing.secureMedia?.redditVideo
-        if (video != null) {
-            val baseUrl = video.fallbackUrl.split("_")[0]
-            val audioUrl = if (video.hasAudio) "${baseUrl}_AUDIO_128.mp4" else null
-            _uiState.update { currentState ->
-                currentState.copy(
-                    audioUrl = audioUrl,
-                    mediaUrl = video.fallbackUrl,
-                    mediaType = "video",
-                    openMediaDialog = true,
-                    mediaHeight = video.height,
-                    mediaWidth = video.width,
+        viewModelScope.launch {
+            val mediaData =
+                getMediaData(
+                    listing.secureMedia?.redditVideo,
+                    listing.url,
+                    listing.galleryData,
+                    imgurAuthRepository::getAlbumImages
                 )
-            }
-        } else {
-            val mediaType = getMediaType(listing.url)
-            if (mediaType != null) {
+            if (mediaData != null) {
                 _uiState.update { currentState ->
                     currentState.copy(
-                        mediaUrl = listing.url.replace("gifv", "mp4"),
-                        mediaType = mediaType,
-                        openMediaDialog = true
-                    )
-                }
-            } else if (listing.galleryData != null) {
-                val baseImageUrl = "https://i.redd.it/"
-                val gallery =
-                    listing.galleryData.items.map { "${baseImageUrl}${it.mediaId}.jpg" }
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        gallery = gallery,
-                        mediaUrl = null,
-                        mediaType = "image",
+                        audioUrl = mediaData.audioUrl,
+                        mediaUrl = mediaData.mediaUrl,
+                        mediaType = mediaData.mediaType,
+                        mediaHeight = mediaData.height,
+                        mediaWidth = mediaData.width,
+                        gallery = mediaData.gallery,
                         openMediaDialog = true,
                     )
-                }
-            } else if (listing.url.contains("imgur.com")) {
-                val url = URL(listing.url)
-                val albumUrlRegex = Regex("/a/([a-zA-Z0-9]+)$")
-                val match = albumUrlRegex.find(url.file)
-                if (match != null) {
-                    val (albumId) = match.destructured
-                    viewModelScope.launch {
-                        try {
-                            val images = imgurAuthRepository.getAlbumImages(albumId)
-                            val gallery = images.map { it.link }
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    gallery = gallery,
-                                    mediaUrl = null,
-                                    mediaType = "image",
-                                    openMediaDialog = true,
-                                )
-                            }
-                        } catch (e: Exception) {
-                            Log.d(REDDIT_API, e.toString())
-                        }
-                    }
-
                 }
             }
         }

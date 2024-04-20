@@ -57,7 +57,7 @@ fun MediaViewerScreen(
     onDismissRequest: () -> Unit,
     mediaUrl: String?,
     audioUrl: String?,
-    mediaType: String?,
+    mediaType: MediaTypes?,
     gallery: List<String>?,
     height: Int?,
     width: Int?,
@@ -73,7 +73,7 @@ fun MediaViewerScreen(
         ) {
 
             if (mediaUrl != null) {
-                if (mediaType == "image") {
+                if (mediaType == MediaTypes.IMAGE) {
                     val imageLoader = ImageLoader.Builder(LocalContext.current)
                         .components { add(GifDecoder.Factory()) }.build()
                     Image(
@@ -91,7 +91,7 @@ fun MediaViewerScreen(
                             }
                     )
                 }
-                if (mediaType == "video") {
+                if (mediaType == MediaTypes.VIDEO) {
                     val context = LocalContext.current
                     val dataSourceFactory = DefaultHttpDataSource.Factory()
                     val videoSource = ProgressiveMediaSource.Factory(dataSourceFactory)
@@ -220,7 +220,7 @@ fun MediaViewerScreenPreview() {
             {},
             "https://v.redd.it/jk90e6z0yb1/DASH_1080.mp4?source=fallback",
             "https://v.redd.it/jo2fyf21dpxb1/DASH_AUDIO_128.mp4",
-            "video",
+            MediaTypes.VIDEO,
             emptyList<String>(),
             1920,
             1080,
