@@ -66,6 +66,19 @@ fun CommentsScreen(
         }
     }
 }
+
+//@Preview
+//@Composable
+//fun PostPreview() {
+//    val data = CommentDataModel(
+//        id = "1",
+//        destUrl = "",
+//        title = "The wreck of the Cost Concordia in 2012. 32 people died when the ship collided with a rock",
+//        thumbnail = "hello"
+//    )
+//    PostContainer(originalPostData = data)
+//}
+
 @Composable
 fun PostContainer(
     originalPostData: CommentDataModel,
@@ -73,7 +86,9 @@ fun PostContainer(
 ) {
     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
         val thumbnail = originalPostData.thumbnail
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier
+            .padding(10.dp)
+            .weight(1.0f)) {
             val title =
                 HtmlCompat.fromHtml(
                     originalPostData.title ?: "",
@@ -93,7 +108,7 @@ fun PostContainer(
                 )
             }
         }
-        if (thumbnail != null){
+        if (thumbnail != null) {
             AsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
                     .data(thumbnail).crossfade(true).build(),
@@ -112,6 +127,7 @@ fun PostContainer(
         }
     }
 }
+
 @Composable
 fun CommentsContainer(
     viewModel: CommentsViewModel,
